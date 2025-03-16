@@ -681,7 +681,7 @@ typedef struct
 #else // x86
 	ZmmRegister_t ZmmRegisters[8];
 #endif
-	ULONGLONG Opmask[7]; // k0 is omitted; AVX-512BW extends these registers from 16 bits to 64 bits
+	ULONGLONG Opmask[8];
 } TITAN_ENGINE_CONTEXT_AVX512_t;
 
 #ifdef __cplusplus

@@ -1141,9 +1141,8 @@ __declspec(dllexport) bool TITCALL SetAVX512Context(HANDLE hActiveThread, TITAN_
 
 	if (Avx512_KMASK != NULL) //If the feature is unsupported by the processor it will return NULL
 	{
-		// k0 is always 0, don't store it.
-		for (int i = 1; i < MIN(FeatureLengthAvx512_KMASK / sizeof(ULONGLONG) - 1, _countof(titcontext->Opmask)); i++)
-			Avx512_KMASK[i] = titcontext->Opmask[i - 1];
+		for (int i = 0; i < MIN(FeatureLengthAvx512_KMASK / sizeof(ULONGLONG), _countof(titcontext->Opmask)); i++)
+			Avx512_KMASK[i] = titcontext->Opmask[i];
 	}
 
 	return (SetThreadContext(hActiveThread, Context) == TRUE);
@@ -1241,9 +1240,8 @@ __declspec(dllexport) bool TITCALL GetAVX512Context(HANDLE hActiveThread, TITAN_
 
 	if (Avx512_KMASK != NULL) //If the feature is unsupported by the processor it will return NULL
 	{
-		// k0 is always 0, don't store it.
-		for (int i = 1; i < MIN(FeatureLengthAvx512_KMASK / sizeof(ULONGLONG) - 1, _countof(titcontext->Opmask)); i++)
-			titcontext->Opmask[i - 1] = Avx512_KMASK[i];
+		for (int i = 0; i < MIN(FeatureLengthAvx512_KMASK / sizeof(ULONGLONG), _countof(titcontext->Opmask)); i++)
+			titcontext->Opmask[i] = Avx512_KMASK[i];
 	}
 
 	return true;
