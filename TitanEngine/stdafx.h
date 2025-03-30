@@ -127,6 +127,12 @@ typedef struct
 
 typedef struct
 {
+	YmmRegister_t Low; //AVX part
+	YmmRegister_t High; //AVX-512 part
+} ZmmRegister_t;
+
+typedef struct
+{
     BYTE    data[10];
     int     st_value;
     int     tag;
@@ -189,6 +195,16 @@ typedef struct
     YmmRegister_t YmmRegisters[8];
 #endif
 } TITAN_ENGINE_CONTEXT_t;
+
+typedef struct
+{
+#ifdef _WIN64
+	ZmmRegister_t ZmmRegisters[32];
+#else // x86
+	ZmmRegister_t ZmmRegisters[8];
+#endif
+	ULONGLONG Opmask[8];
+} TITAN_ENGINE_CONTEXT_AVX512_t;
 
 typedef struct
 {

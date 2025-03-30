@@ -1043,3 +1043,206 @@ __declspec(dllexport) bool TITCALL GetAVXContext(HANDLE hActiveThread, TITAN_ENG
 
     return true;
 }
+
+// AVX-512 constants
+#ifndef XSTATE_MASK_AVX512
+#define XSTATE_AVX512_KMASK                 (5)
+#define XSTATE_AVX512_ZMM_H                 (6)
+#define XSTATE_AVX512_ZMM                   (7)
+#define XSTATE_MASK_AVX512                  ((1ui64 << (XSTATE_AVX512_KMASK)) | \
+                                             (1ui64 << (XSTATE_AVX512_ZMM_H)) | \
+                                             (1ui64 << (XSTATE_AVX512_ZMM)))
+#endif
+
+static bool SetAVX512ContextFallbackToAVX(HANDLE hActiveThread, TITAN_ENGINE_CONTEXT_AVX512_t* titcontext) {
+	// Fall back to using AVX and ignore the rest
+	TITAN_ENGINE_CONTEXT_t Avx;
+	memset(&Avx, 0, sizeof(Avx));
+	for (int i = 0; i < _countof(Avx.YmmRegisters); i++) {
+		Avx.YmmRegisters[i] = titcontext->ZmmRegisters[i].Low;
+	}
+	return SetAVXContext(hActiveThread, &Avx);
+}
+
+__declspec(dllexport) bool TITCALL SetAVX512Context(HANDLE hActiveThread, TITAN_ENGINE_CONTEXT_AVX512_t* titcontext)
+{
+	if (InitXState() == false)
+		return false;
+
+	DWORD64 FeatureMask = _GetEnabledXStateFeatures();
+	if ((FeatureMask & XSTATE_MASK_AVX512) == 0)
+		return SetAVX512ContextFallbackToAVX(hActiveThread, titcontext);
+
+	DWORD ContextSize = 0;
+	BOOL Success = _InitializeContext(NULL,
+		CONTEXT_ALL | CONTEXT_XSTATE,
+		NULL,
+		&ContextSize);
+
+	if ((Success == TRUE) || (GetLastError() != ERROR_INSUFFICIENT_BUFFER))
+		return false;
+
+	DynBuf dataBuffer(ContextSize);
+	PVOID Buffer = dataBuffer.GetPtr();
+	if (Buffer == NULL)
+		return false;
+
+	PCONTEXT Context;
+	Success = _InitializeContext(Buffer,
+		CONTEXT_ALL | CONTEXT_XSTATE,
+		&Context,
+		&ContextSize);
+	if (Success == FALSE)
+		return false;
+
+	if (_SetXStateFeaturesMask(Context, XSTATE_MASK_AVX | XSTATE_MASK_AVX512) == FALSE)
+		return SetAVX512ContextFallbackToAVX(hActiveThread, titcontext);
+
+	if (GetThreadContext(hActiveThread, Context) == FALSE)
+		return false;
+
+	if (_GetXStateFeaturesMask(Context, &FeatureMask) == FALSE)
+		return false;
+
+	DWORD FeatureLengthSse;
+	DWORD FeatureLengthAvx;
+	DWORD FeatureLengthAvx512_KMASK;
+	DWORD FeatureLengthAvx512_ZMM_H;
+	DWORD FeatureLengthAvx512_ZMM;
+	XmmRegister_t* Sse = (XmmRegister_t*)_LocateXStateFeature(Context, XSTATE_LEGACY_SSE, &FeatureLengthSse);
+	XmmRegister_t* Avx = (XmmRegister_t*)_LocateXStateFeature(Context, XSTATE_AVX, &FeatureLengthAvx);
+	ULONGLONG* Avx512_KMASK = (ULONGLONG*)_LocateXStateFeature(Context, XSTATE_AVX512_KMASK, &FeatureLengthAvx512_KMASK);
+	ZmmRegister_t* Avx512_ZMM = (ZmmRegister_t *)_LocateXStateFeature(Context, XSTATE_AVX512_ZMM, &FeatureLengthAvx512_ZMM);
+	YmmRegister_t* Avx512_ZMM_H = (YmmRegister_t *)_LocateXStateFeature(Context, XSTATE_AVX512_ZMM_H, &FeatureLengthAvx512_ZMM_H);
+
+	if (Sse != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthSse / sizeof(XmmRegister_t), _countof(titcontext->ZmmRegisters)); i++)
+			Sse[i] = titcontext->ZmmRegisters[i].Low.Low;
+	}
+
+	if (Avx != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx / sizeof(XmmRegister_t), _countof(titcontext->ZmmRegisters)); i++)
+			Avx[i] = titcontext->ZmmRegisters[i].Low.High;
+	}
+
+	if (Avx512_ZMM_H != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx512_ZMM_H / sizeof(YmmRegister_t), _countof(titcontext->ZmmRegisters)); i++)
+			Avx512_ZMM_H[i] = titcontext->ZmmRegisters[i].High;
+	}
+
+	if (Avx512_ZMM != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx512_ZMM / sizeof(ZmmRegister_t), _countof(titcontext->ZmmRegisters) - FeatureLengthAvx / sizeof(XmmRegister_t)); i++)
+			Avx512_ZMM[i] = titcontext->ZmmRegisters[i + FeatureLengthAvx / sizeof(XmmRegister_t)];
+	}
+
+	if (Avx512_KMASK != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx512_KMASK / sizeof(ULONGLONG), _countof(titcontext->Opmask)); i++)
+			Avx512_KMASK[i] = titcontext->Opmask[i];
+	}
+
+	return (SetThreadContext(hActiveThread, Context) == TRUE);
+}
+
+static bool GetAVX512ContextFallbackToAVX(HANDLE hActiveThread, TITAN_ENGINE_CONTEXT_AVX512_t* titcontext)
+{
+	// Fall back to using AVX and fill the rest with 0
+	TITAN_ENGINE_CONTEXT_t Avx;
+	memset(&Avx, 0, sizeof(Avx));
+	if (GetAVXContext(hActiveThread, &Avx)) {
+		for (int i = 0; i < _countof(Avx.YmmRegisters); i++)
+			titcontext->ZmmRegisters[i].Low = Avx.YmmRegisters[i];
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+__declspec(dllexport) bool TITCALL GetAVX512Context(HANDLE hActiveThread, TITAN_ENGINE_CONTEXT_AVX512_t* titcontext)
+{
+	if (InitXState() == false)
+		return false;
+
+	DWORD64 FeatureMask = _GetEnabledXStateFeatures();
+	if ((FeatureMask & XSTATE_MASK_AVX512) == 0) //XSTATE_MASK_AVX512
+		return GetAVX512ContextFallbackToAVX(hActiveThread, titcontext);
+
+	DWORD ContextSize = 0;
+	BOOL Success = _InitializeContext(NULL,
+		CONTEXT_ALL | CONTEXT_XSTATE,
+		NULL,
+		&ContextSize);
+
+	if ((Success == TRUE) || (GetLastError() != ERROR_INSUFFICIENT_BUFFER))
+		return false;
+
+	DynBuf dataBuffer(ContextSize);
+	PVOID Buffer = dataBuffer.GetPtr();
+	if (Buffer == NULL)
+		return false;
+
+	PCONTEXT Context;
+	Success = _InitializeContext(Buffer,
+		CONTEXT_ALL | CONTEXT_XSTATE,
+		&Context,
+		&ContextSize);
+	if (Success == FALSE)
+		return false;
+
+	if (_SetXStateFeaturesMask(Context, XSTATE_MASK_AVX | XSTATE_MASK_AVX512) == FALSE)
+		return GetAVX512ContextFallbackToAVX(hActiveThread, titcontext);
+
+	if (GetThreadContext(hActiveThread, Context) == FALSE)
+		return false;
+
+	if (_GetXStateFeaturesMask(Context, &FeatureMask) == FALSE)
+		return false;
+
+	DWORD FeatureLengthSse;
+	DWORD FeatureLengthAvx;
+	DWORD FeatureLengthAvx512_KMASK;
+	DWORD FeatureLengthAvx512_ZMM_H;
+	DWORD FeatureLengthAvx512_ZMM;
+	XmmRegister_t* Sse = (XmmRegister_t*)_LocateXStateFeature(Context, XSTATE_LEGACY_SSE, &FeatureLengthSse);
+	XmmRegister_t* Avx = (XmmRegister_t*)_LocateXStateFeature(Context, XSTATE_AVX, &FeatureLengthAvx);
+	ULONGLONG* Avx512_KMASK = (ULONGLONG*)_LocateXStateFeature(Context, XSTATE_AVX512_KMASK, &FeatureLengthAvx512_KMASK);
+	ZmmRegister_t* Avx512_ZMM = (ZmmRegister_t *)_LocateXStateFeature(Context, XSTATE_AVX512_ZMM, &FeatureLengthAvx512_ZMM);
+	YmmRegister_t* Avx512_ZMM_H = (YmmRegister_t *)_LocateXStateFeature(Context, XSTATE_AVX512_ZMM_H, &FeatureLengthAvx512_ZMM_H);
+
+	if (Sse != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthSse / sizeof(XmmRegister_t), _countof(titcontext->ZmmRegisters)); i++)
+			titcontext->ZmmRegisters[i].Low.Low = Sse[i];
+	}
+
+	if (Avx != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx / sizeof(XmmRegister_t), _countof(titcontext->ZmmRegisters)); i++)
+			titcontext->ZmmRegisters[i].Low.High = Avx[i];
+	}
+
+	if (Avx512_ZMM_H != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx512_ZMM_H / sizeof(YmmRegister_t), _countof(titcontext->ZmmRegisters)); i++)
+			titcontext->ZmmRegisters[i].High = Avx512_ZMM_H[i];
+	}
+
+	if (Avx512_ZMM != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx512_ZMM / sizeof(ZmmRegister_t), _countof(titcontext->ZmmRegisters) - FeatureLengthAvx / sizeof(XmmRegister_t)); i++)
+			titcontext->ZmmRegisters[i + FeatureLengthAvx / sizeof(XmmRegister_t)] = Avx512_ZMM[i];
+	}
+
+	if (Avx512_KMASK != NULL) //If the feature is unsupported by the processor it will return NULL
+	{
+		for (int i = 0; i < MIN(FeatureLengthAvx512_KMASK / sizeof(ULONGLONG), _countof(titcontext->Opmask)); i++)
+			titcontext->Opmask[i] = Avx512_KMASK[i];
+	}
+
+	return true;
+}
