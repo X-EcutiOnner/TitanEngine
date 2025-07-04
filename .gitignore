@@ -161,3 +161,6 @@ $RECYCLE.BIN/
 cov-*
 coverity*
 *.user
+
+# Release
+deps/
