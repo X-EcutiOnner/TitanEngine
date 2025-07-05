@@ -62,6 +62,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
     SIZE_T ResetBPXSize = 0;
     ULONG_PTR ResetBPXAddressTo =  0;
     std::function<void()> ResetMemBpxCallback;
+    std::function<void()> ResetMemBpxExtraCallback = nullptr;
     ULONG_PTR NumberOfBytesReadWritten = 0;
     HANDLE hActiveThread;
     DWORD OldProtect;
@@ -684,6 +685,11 @@ __declspec(dllexport) void TITCALL DebugLoop()
                     {
                         ResetMemBPX = false;
                         ResetMemBpxCallback();
+                        if(ResetMemBpxExtraCallback != nullptr)
+                        {
+                            ResetMemBpxExtraCallback();
+                            ResetMemBpxExtraCallback = nullptr;
+                        }
                         engineStep();
                     }
                 }
@@ -859,7 +865,14 @@ __declspec(dllexport) void TITCALL DebugLoop()
                 //      - restore the protection if there are still our BPs on this page OR pass the exception to the debuggee
 
                 DBGCode = DBG_EXCEPTION_NOT_HANDLED;
-                ResetMemBPX = false;
+
+                // If the access is at page boundary, it can span an extra page before the internal step is run
+                if(ResetMemBPX)
+                {
+                    ResetMemBpxExtraCallback = ResetMemBpxCallback;
+                    ResetMemBPX = false;
+                }
+
                 bool bCallUserCallback = false; // when we hit a correct BP
 
                 // Access Types: 0 - read, 1 - write, 8 - execute (dep violation)
