@@ -724,6 +724,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
                                 GetThreadContext(hActiveThread, &myDBGContext);
                                 myDBGContext.EFlags &= ~UE_TRAP_FLAG;
                                 SetThreadContext(hActiveThread, &myDBGContext);
+                                synchronizedStep = false;
                             }
                         }
                         else
@@ -755,6 +756,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
                                 GetThreadContext(hActiveThread, &myDBGContext);
                                 myDBGContext.EFlags &= ~UE_TRAP_FLAG;
                                 SetThreadContext(hActiveThread, &myDBGContext);
+                                synchronizedStep = false;
                             }
                         }
                         else
@@ -786,6 +788,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
                                 GetThreadContext(hActiveThread, &myDBGContext);
                                 myDBGContext.EFlags &= ~UE_TRAP_FLAG;
                                 SetThreadContext(hActiveThread, &myDBGContext);
+                                synchronizedStep = false;
                             }
                         }
                         else
@@ -817,6 +820,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
                                 GetThreadContext(hActiveThread, &myDBGContext);
                                 myDBGContext.EFlags &= ~UE_TRAP_FLAG;
                                 SetThreadContext(hActiveThread, &myDBGContext);
+                                synchronizedStep = false;
                             }
                         }
                         else
