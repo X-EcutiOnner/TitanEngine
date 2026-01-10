@@ -303,6 +303,7 @@ __declspec(dllexport) bool TITCALL DeleteBPX(ULONG_PTR bpxAddress)
     FlushInstructionCache(dbgProcessInformation.hProcess, NULL, 0);
     VirtualProtectEx(dbgProcessInformation.hProcess, (LPVOID)bpxAddress, BreakPointBuffer.at(found).BreakPointSize, OldProtect, &OldProtect);
     BreakPointBuffer.erase(BreakPointBuffer.begin() + found);
+    recentlyDeletedBpx.insert(bpxAddress);
     return true;
 }
 

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "Global.Engine.Threading.h"
 #include "Global.Engine.h"
@@ -11,6 +12,7 @@
 
 extern std::vector<BreakPointDetail> BreakPointBuffer;
 extern std::unordered_map<ULONG_PTR, MemoryBreakpointPageDetail> MemoryBreakpointPages;
+extern std::unordered_set<ULONG_PTR> recentlyDeletedBpx;
 
 void uintdr7(ULONG_PTR dr7, DR7* ret);
 ULONG_PTR dr7uint(DR7* dr7);

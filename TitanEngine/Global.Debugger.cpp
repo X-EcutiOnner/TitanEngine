@@ -89,6 +89,7 @@ void DebuggerReset()
     }
     std::vector<BreakPointDetail>().swap(BreakPointBuffer);
     std::unordered_map<ULONG_PTR, MemoryBreakpointPageDetail>().swap(MemoryBreakpointPages);
+    recentlyDeletedBpx.clear();
 }
 
 void ClearProcessList()

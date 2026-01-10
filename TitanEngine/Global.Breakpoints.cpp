@@ -4,6 +4,7 @@
 
 std::vector<BreakPointDetail> BreakPointBuffer;
 std::unordered_map<ULONG_PTR, MemoryBreakpointPageDetail> MemoryBreakpointPages;
+std::unordered_set<ULONG_PTR> recentlyDeletedBpx;
 
 ULONG_PTR dr7uint(DR7* dr7)
 {

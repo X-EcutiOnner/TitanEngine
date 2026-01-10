@@ -101,6 +101,8 @@ __declspec(dllexport) void TITCALL DebugLoop()
     memset(&DLLDebugFileName, 0, sizeof(DLLDebugFileName));
     engineFileIsBeingDebugged = true;
 
+    uint32_t consecutiveTimeouts = 0;
+
     while(!BreakDBG) //actual debug loop
     {
         bool synchronizedStep = false;
@@ -124,9 +126,16 @@ __declspec(dllexport) void TITCALL DebugLoop()
             else
             {
                 // Regular timeout, wait again
+                // After 2 consecutive timeouts, clear recently deleted breakpoints
+                consecutiveTimeouts++;
+                if(consecutiveTimeouts >= 2)
+                    recentlyDeletedBpx.clear();
                 continue;
             }
         }
+
+        // Event received, reset timeout counter
+        consecutiveTimeouts = 0;
 
         if(IsDbgReplyLaterSupported)
         {
@@ -589,11 +598,36 @@ __declspec(dllexport) void TITCALL DebugLoop()
                 {
                     if(DebugAttachedToProcess || !FirstBPX) //program generated a breakpoint exception
                     {
-                        DBGCode = DBG_EXCEPTION_NOT_HANDLED;
-                        if(DBGCustomHandler->chBreakPoint != NULL)
+                        ULONG_PTR exceptionAddress = (ULONG_PTR)DBGEvent.u.Exception.ExceptionRecord.ExceptionAddress;
+
+                        if(recentlyDeletedBpx.find(exceptionAddress) != recentlyDeletedBpx.end())
                         {
-                            myCustomHandler = (fCustomHandler)((LPVOID)DBGCustomHandler->chBreakPoint);
-                            myCustomHandler(&DBGEvent.u.Exception.ExceptionRecord);
+                            //breakpoint was recently deleted - handle the stale event gracefully
+                            hActiveThread = EngineOpenThread(THREAD_GETSETSUSPEND, false, DBGEvent.dwThreadId);
+                            if(hActiveThread != NULL)
+                            {
+                                CONTEXT myDBGContext;
+                                myDBGContext.ContextFlags = ContextControlFlags;
+                                GetThreadContext(hActiveThread, &myDBGContext);
+#if defined(_WIN64)
+                                myDBGContext.Rip = exceptionAddress;
+#else
+                                myDBGContext.Eip = (DWORD)exceptionAddress;
+#endif
+                                SetThreadContext(hActiveThread, &myDBGContext);
+                                EngineCloseHandle(hActiveThread);
+                                DBGCode = DBG_CONTINUE;
+                            }
+                        }
+                        else
+                        {
+                            //not a recently deleted breakpoint - pass to debuggee
+                            DBGCode = DBG_EXCEPTION_NOT_HANDLED;
+                            if(DBGCustomHandler->chBreakPoint != NULL)
+                            {
+                                myCustomHandler = (fCustomHandler)((LPVOID)DBGCustomHandler->chBreakPoint);
+                                myCustomHandler(&DBGEvent.u.Exception.ExceptionRecord);
+                            }
                         }
                     }
                     else //system breakpoint
