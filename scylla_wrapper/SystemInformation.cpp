@@ -5,15 +5,17 @@ OPERATING_SYSTEM SystemInformation::currenOS = UNKNOWN_OS;
 
 bool SystemInformation::getSystemInformation()
 {
-    OSVERSIONINFOEX osvi = {0};
+    RTL_OSVERSIONINFOW osvi = {0};
+    osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
     SYSTEM_INFO si = {0};
     def_GetNativeSystemInfo _GetNativeSystemInfo = 0;
-
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    if(!GetVersionEx((OSVERSIONINFO*) &osvi))
-    {
+    typedef LONG (WINAPI* tRtlGetVersion)(PRTL_OSVERSIONINFOW);
+    tRtlGetVersion pRtlGetVersion = (tRtlGetVersion)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetVersion");
+    if(!pRtlGetVersion)
         return false;
-    }
+
+    if(pRtlGetVersion(&osvi) != 0)
+        return false;
 
     if((osvi.dwMajorVersion < 5) || ((osvi.dwMajorVersion == 5) && (osvi.dwMinorVersion == 0)))
     {
@@ -32,6 +34,7 @@ bool SystemInformation::getSystemInformation()
 
     bool isX64 = si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64;
     bool isX86 = si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL;
+
 
     DWORD major = osvi.dwMajorVersion;
     DWORD minor = osvi.dwMinorVersion;

@@ -28,7 +28,7 @@ __declspec(dllexport) void TITCALL ForceClose()
     {
         StopDebug();
     }
-    RtlZeroMemory(&dbgProcessInformation, sizeof PROCESS_INFORMATION);
+    RtlZeroMemory(&dbgProcessInformation, sizeof(PROCESS_INFORMATION));
     if(DebugDebuggingDLL)
         DeleteFileW(szDebuggerName);
     DebugDebuggingDLL = false;
@@ -87,7 +87,7 @@ __declspec(dllexport) void TITCALL StepOut(LPVOID StepOut, bool StepFinal)
 {
     DebugStepFinal = StepFinal;
     StepOutCallBack = StepOut;
-    StepOver(StepOutStepCallBack);
+    StepOver(CallbackToObjectPointer(&StepOutStepCallBack));
 }
 
 __declspec(dllexport) void TITCALL SingleStep(DWORD StepCount, LPVOID StepCallBack)

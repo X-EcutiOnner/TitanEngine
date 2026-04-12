@@ -402,6 +402,17 @@ __declspec(dllexport) void* TITCALL InitNativeDebugW(wchar_t* szFileName, wchar_
     HANDLE ProcessHandle = NULL, ThreadHandle = NULL;
     UNICODE_STRING CommandLine = { 0 };
     PUNICODE_STRING PtrCurrentDirectory = NULL;
+    OBJECT_ATTRIBUTES ObjectAttributes = {};
+    HANDLE DebugPort = NULL;
+    PS_CREATE_INFO CreateInfo = {};
+    SIZE_T NumAttributes = 0;
+    SIZE_T AttributesSize = 0;
+    PPS_ATTRIBUTE_LIST AttributeList = NULL;
+    ULONG N = 0;
+    CLIENT_ID Cid = {};
+    PCLIENT_ID ClientId = NULL;
+    ULONG NtProcessFlags = 0;
+    ULONG NtThreadFlags = 0;
 
     // Convert the application path to its NT equivalent
     UNICODE_STRING ImagePath, NtImagePath;
@@ -461,9 +472,7 @@ __declspec(dllexport) void* TITCALL InitNativeDebugW(wchar_t* szFileName, wchar_
     ProcessParameters->ShowWindowFlags = STARTF_USESHOWWINDOW | SW_SHOWDEFAULT;
 
     // Create a debug port object
-    OBJECT_ATTRIBUTES ObjectAttributes;
     InitializeObjectAttributes(&ObjectAttributes, NULL, 0, NULL, NULL);
-    HANDLE DebugPort = NULL;
     Status = NtCreateDebugObject(&DebugPort,
                                  DEBUG_ALL_ACCESS,
                                  &ObjectAttributes,
@@ -478,7 +487,6 @@ __declspec(dllexport) void* TITCALL InitNativeDebugW(wchar_t* szFileName, wchar_
     NtCurrentTeb()->DbgSsReserved[1] = DebugPort;
 
     // Initialize the PS_CREATE_INFO structure
-    PS_CREATE_INFO CreateInfo;
     RtlZeroMemory(&CreateInfo, sizeof(CreateInfo));
     CreateInfo.Size = sizeof(CreateInfo);
     CreateInfo.State = PsCreateInitialState;
@@ -488,16 +496,16 @@ __declspec(dllexport) void* TITCALL InitNativeDebugW(wchar_t* szFileName, wchar_
     CreateInfo.u1.InitState.AdditionalFileAccess = FILE_READ_ATTRIBUTES | FILE_READ_DATA;
 
     // Initialize the PS_ATTRIBUTE_LIST that contains the process creation attributes
-    const SIZE_T NumAttributes = 3;
-    const SIZE_T AttributesSize = sizeof(SIZE_T) + NumAttributes * sizeof(PS_ATTRIBUTE);
-    PPS_ATTRIBUTE_LIST AttributeList = reinterpret_cast<PPS_ATTRIBUTE_LIST>(
+    NumAttributes = 3;
+    AttributesSize = sizeof(SIZE_T) + NumAttributes * sizeof(PS_ATTRIBUTE);
+    AttributeList = reinterpret_cast<PPS_ATTRIBUTE_LIST>(
                                            RtlAllocateHeap(RtlProcessHeap(),
                                                    HEAP_ZERO_MEMORY, // Not optional
                                                    AttributesSize));
     AttributeList->TotalLength = AttributesSize;
 
     // In: NT style absolute image path. This is the only required attribute
-    ULONG N = 0;
+    N = 0;
     AttributeList->Attributes[N].Attribute = PS_ATTRIBUTE_IMAGE_NAME;
     AttributeList->Attributes[N].Size = NtImagePath.Length;
     AttributeList->Attributes[N].Value = reinterpret_cast<ULONG_PTR>(NtImagePath.Buffer);
@@ -510,15 +518,15 @@ __declspec(dllexport) void* TITCALL InitNativeDebugW(wchar_t* szFileName, wchar_
 
     // Out: client ID
     N++;
-    CLIENT_ID Cid;
-    PCLIENT_ID ClientId = &Cid;
+    Cid = {};
+    ClientId = &Cid;
     AttributeList->Attributes[N].Attribute = PS_ATTRIBUTE_CLIENT_ID;
     AttributeList->Attributes[N].Size = sizeof(CLIENT_ID);
     AttributeList->Attributes[N].Value = reinterpret_cast<ULONG_PTR>(ClientId);
 
     // Set process and thread flags
-    ULONG NtProcessFlags = PROCESS_CREATE_FLAGS_NO_DEBUG_INHERIT; // Same as DEBUG_ONLY_THIS_PROCESS. DEBUG_PROCESS is implied by the debug port
-    ULONG NtThreadFlags = THREAD_CREATE_FLAGS_CREATE_SUSPENDED; // Always set this, because we need to do some bookkeeping before resuming
+    NtProcessFlags = PROCESS_CREATE_FLAGS_NO_DEBUG_INHERIT; // Same as DEBUG_ONLY_THIS_PROCESS. DEBUG_PROCESS is implied by the debug port
+    NtThreadFlags = THREAD_CREATE_FLAGS_CREATE_SUSPENDED; // Always set this, because we need to do some bookkeeping before resuming
 
     // Create the process
     Status = fnNtCreateUserProcess(&ProcessHandle,
@@ -822,7 +830,7 @@ __declspec(dllexport) void TITCALL AutoDebugExW(wchar_t* szFileName, bool Reserv
 
     if(szFileName != NULL)
     {
-        RtlZeroMemory(&expertDebug, sizeof ExpertDebug);
+        RtlZeroMemory(&expertDebug, sizeof(ExpertDebug));
         expertDebug.ExpertModeActive = true;
         expertDebug.szFileName = szFileName;
         expertDebug.szCommandLine = szCommandLine;
@@ -844,7 +852,7 @@ __declspec(dllexport) void TITCALL AutoDebugExW(wchar_t* szFileName, bool Reserv
                 ForceClose();
             }
         }
-        RtlZeroMemory(&expertDebug, sizeof ExpertDebug);
+        RtlZeroMemory(&expertDebug, sizeof(ExpertDebug));
         SetDebugLoopTimeOut(INFINITE);
     }
 }

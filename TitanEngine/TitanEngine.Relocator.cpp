@@ -48,7 +48,7 @@ __declspec(dllexport) void TITCALL RelocaterAddNewRelocation(HANDLE hProcess, UL
     DWORD CompareDummy = NULL;
     DWORD CopyDummy = NULL;
 
-    VirtualQueryEx(hProcess, (LPVOID)RelocateAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+    VirtualQueryEx(hProcess, (LPVOID)RelocateAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
     if(MemInfo.BaseAddress != RelocationLastPage || RelocationLastPage == NULL)
     {
         RelocationLastPage = MemInfo.BaseAddress;
@@ -243,7 +243,7 @@ __declspec(dllexport) bool TITCALL RelocaterGrabRelocationTable(HANDLE hProcess,
 
     if(RelocationData != NULL)
     {
-        VirtualQueryEx(hProcess, (LPVOID)MemoryStart, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQueryEx(hProcess, (LPVOID)MemoryStart, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         OldProtect = MemInfo.Protect;
         VirtualProtectEx(hProcess, (LPVOID)MemoryStart, MemorySize, PAGE_EXECUTE_READWRITE, &OldProtect);
         if(ReadProcessMemory(hProcess, (LPVOID)MemoryStart, RelocationData, MemorySize, &ueNumberOfBytesRead))
@@ -271,9 +271,9 @@ __declspec(dllexport) bool TITCALL RelocaterGrabRelocationTableEx(HANDLE hProces
 
     if(RelocationData != NULL)
     {
-        VirtualQueryEx(hProcess, (LPVOID)MemoryStart, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQueryEx(hProcess, (LPVOID)MemoryStart, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         OldProtect = MemInfo.Protect;
-        VirtualQueryEx(hProcess, (LPVOID)MemInfo.BaseAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQueryEx(hProcess, (LPVOID)MemInfo.BaseAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         if(MemInfo.RegionSize < MemorySize || MemorySize == NULL)
         {
             MemorySize = MemInfo.RegionSize;
@@ -382,7 +382,7 @@ __declspec(dllexport) bool TITCALL RelocaterCompareTwoSnapshotsW(HANDLE hProcess
                     {
                         if(memcmp(Search1, Search2, 1) != 0)
                         {
-                            i = sizeof HANDLE;
+                            i = sizeof(HANDLE);
                             RelativeBase = NULL;
                             bkSearch1 = Search1;
                             bkSearch2 = Search2;
@@ -395,7 +395,7 @@ __declspec(dllexport) bool TITCALL RelocaterCompareTwoSnapshotsW(HANDLE hProcess
                             }
                             while(i > NULL && RelativeBase == NULL)
                             {
-                                RtlMoveMemory(&ReadData, Search2, sizeof HANDLE);
+                                RtlMoveMemory(&ReadData, Search2, sizeof(HANDLE));
                                 if(ReadData >= LoadedImageBase && ReadData <= NtSizeOfImage)
                                 {
                                     RelativeBase++;
@@ -417,9 +417,9 @@ __declspec(dllexport) bool TITCALL RelocaterCompareTwoSnapshotsW(HANDLE hProcess
                             else
                             {
                                 RelocaterAddNewRelocation(hProcess, MemStart + ((ULONG_PTR)Search2 - (ULONG_PTR)FileMapVA2), NULL);
-                                Search1 = (LPVOID)((ULONG_PTR)Search1 + sizeof HANDLE - 1);
-                                Search2 = (LPVOID)((ULONG_PTR)Search2 + sizeof HANDLE - 1);
-                                SearchSize = SearchSize - sizeof HANDLE + 1;
+                                Search1 = (LPVOID)((ULONG_PTR)Search1 + sizeof(HANDLE) - 1);
+                                Search2 = (LPVOID)((ULONG_PTR)Search2 + sizeof(HANDLE) - 1);
+                                SearchSize = SearchSize - sizeof(HANDLE) + 1;
                             }
                         }
                         Search1 = (LPVOID)((ULONG_PTR)Search1 + 1);
@@ -482,17 +482,17 @@ __declspec(dllexport) bool TITCALL RelocaterChangeFileBaseW(wchar_t* szFileName,
     wchar_t szBackupFile[MAX_PATH] = {};
     wchar_t szBackupItem[MAX_PATH] = {};
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_ALL, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))

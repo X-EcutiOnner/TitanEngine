@@ -57,7 +57,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
     ULONG_PTR FileMapVA;
     WORD ResourceNamesTable[22] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24};
 
-    RtlZeroMemory(&myFileStatusInfo, sizeof FILE_STATUS_INFO);
+    RtlZeroMemory(&myFileStatusInfo, sizeof(FILE_STATUS_INFO));
     if(MapFileExW(szFileName, UE_ACCESS_READ, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))
     {
         DOSHeader = (PIMAGE_DOS_HEADER)FileMapVA;
@@ -81,7 +81,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                 myFileStatusInfo.SignaturePE = UE_FIELD_BROKEN_NON_FIXABLE;
                 if(FileStatusInfo != NULL)
                 {
-                    RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof FILE_STATUS_INFO);
+                    RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof(FILE_STATUS_INFO));
                 }
                 UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
                 return false;
@@ -489,7 +489,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                                                             }
                                                         }
                                                         CurrentThunk = CurrentThunk + 4;
-                                                        ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof IMAGE_THUNK_DATA32);
+                                                        ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof(IMAGE_THUNK_DATA32));
                                                     }
                                                 }
                                                 else
@@ -500,7 +500,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                                                 {
                                                     VirtualFree((LPVOID)hLoadedModule, NULL, MEM_RELEASE);
                                                 }
-                                                ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                                                ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                                             }
                                         }
                                     }
@@ -630,7 +630,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                                     {
                                         myFileStatusInfo.BoundImportTable = UE_FIELD_FIXABLE_CRITICAL;
                                     }
-                                    BoundIID = (PIMAGE_BOUND_IMPORT_DESCRIPTOR)((ULONG_PTR)BoundIID + sizeof IMAGE_BOUND_IMPORT_DESCRIPTOR);
+                                    BoundIID = (PIMAGE_BOUND_IMPORT_DESCRIPTOR)((ULONG_PTR)BoundIID + sizeof(IMAGE_BOUND_IMPORT_DESCRIPTOR));
                                 }
                             }
                         }
@@ -750,7 +750,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                         }
                         if(NumberOfSections > 1)
                         {
-                            PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof IMAGE_SECTION_HEADER);
+                            PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof(IMAGE_SECTION_HEADER));
                             if(SectionVirtualSize > PESections->VirtualAddress || SectionVirtualSizeFixed > PESections->VirtualAddress)
                             {
                                 myFileStatusInfo.SectionTable = UE_FIELD_FIXABLE_CRITICAL;
@@ -804,7 +804,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                     */
                     if(FileStatusInfo != NULL)
                     {
-                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof FILE_STATUS_INFO);
+                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof(FILE_STATUS_INFO));
                     }
                     UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
                     if(myFileStatusInfo.OveralEvaluation == UE_RESULT_FILE_OK)
@@ -819,7 +819,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                     myFileStatusInfo.SignaturePE = UE_FIELD_BROKEN_NON_FIXABLE;
                     if(FileStatusInfo != NULL)
                     {
-                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof FILE_STATUS_INFO);
+                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof(FILE_STATUS_INFO));
                     }
                     UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
                     return false;
@@ -1228,7 +1228,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                                                             }
                                                         }
                                                         CurrentThunk = CurrentThunk + 8;
-                                                        ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof IMAGE_THUNK_DATA64);
+                                                        ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof(IMAGE_THUNK_DATA64));
                                                     }
                                                 }
                                                 else
@@ -1239,7 +1239,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                                                 {
                                                     VirtualFree((LPVOID)hLoadedModule, NULL, MEM_RELEASE);
                                                 }
-                                                ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                                                ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                                             }
                                         }
                                     }
@@ -1369,7 +1369,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                                     {
                                         myFileStatusInfo.BoundImportTable = UE_FIELD_FIXABLE_CRITICAL;
                                     }
-                                    BoundIID = (PIMAGE_BOUND_IMPORT_DESCRIPTOR)((ULONG_PTR)BoundIID + sizeof IMAGE_BOUND_IMPORT_DESCRIPTOR);
+                                    BoundIID = (PIMAGE_BOUND_IMPORT_DESCRIPTOR)((ULONG_PTR)BoundIID + sizeof(IMAGE_BOUND_IMPORT_DESCRIPTOR));
                                 }
                             }
                         }
@@ -1489,7 +1489,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                         }
                         if(NumberOfSections > 1)
                         {
-                            PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof IMAGE_SECTION_HEADER);
+                            PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof(IMAGE_SECTION_HEADER));
                             if(SectionVirtualSize > PESections->VirtualAddress || SectionVirtualSizeFixed > PESections->VirtualAddress)
                             {
                                 myFileStatusInfo.SectionTable = UE_FIELD_FIXABLE_CRITICAL;
@@ -1543,7 +1543,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                     */
                     if(FileStatusInfo != NULL)
                     {
-                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof FILE_STATUS_INFO);
+                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof(FILE_STATUS_INFO));
                     }
                     UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
                     if(myFileStatusInfo.OveralEvaluation == UE_RESULT_FILE_OK)
@@ -1558,7 +1558,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
                     myFileStatusInfo.SignaturePE = UE_FIELD_BROKEN_NON_FIXABLE;
                     if(FileStatusInfo != NULL)
                     {
-                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof FILE_STATUS_INFO);
+                        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof(FILE_STATUS_INFO));
                     }
                     UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
                     return false;
@@ -1571,7 +1571,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
             myFileStatusInfo.SignatureMZ = UE_FIELD_BROKEN_NON_FIXABLE;
             if(FileStatusInfo != NULL)
             {
-                RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof FILE_STATUS_INFO);
+                RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof(FILE_STATUS_INFO));
             }
             UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
             return false;
@@ -1579,7 +1579,7 @@ __declspec(dllexport) bool TITCALL IsPE32FileValidExW(wchar_t* szFileName, DWORD
     }
     if(FileStatusInfo != NULL)
     {
-        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof FILE_STATUS_INFO);
+        RtlMoveMemory(FileStatusInfo, &myFileStatusInfo, sizeof(FILE_STATUS_INFO));
     }
     return false;
 }
@@ -1811,14 +1811,14 @@ __declspec(dllexport) bool TITCALL FixBrokenPE32FileExW(wchar_t* szFileName, LPV
                                                     }
                                                 }
                                                 CurrentThunk = CurrentThunk + 4;
-                                                ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof IMAGE_THUNK_DATA32);
+                                                ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof(IMAGE_THUNK_DATA32));
                                             }
                                         }
                                         if(hLoadedModuleSimulated)
                                         {
                                             VirtualFree((LPVOID)hLoadedModule, NULL, MEM_RELEASE);
                                         }
-                                        ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                                        ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                                     }
                                 }
                             }
@@ -2230,7 +2230,7 @@ __declspec(dllexport) bool TITCALL FixBrokenPE32FileExW(wchar_t* szFileName, LPV
                                 }
                                 if(NumberOfSections > 1)
                                 {
-                                    PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof IMAGE_SECTION_HEADER);
+                                    PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof(IMAGE_SECTION_HEADER));
                                     if(SectionVirtualSize > PESections->VirtualAddress || SectionVirtualSizeFixed > PESections->VirtualAddress)
                                     {
                                         PESections->Misc.VirtualSize = SectionVirtualSizeFixed;
@@ -2404,14 +2404,14 @@ __declspec(dllexport) bool TITCALL FixBrokenPE32FileExW(wchar_t* szFileName, LPV
                                                     }
                                                 }
                                                 CurrentThunk = CurrentThunk + 8;
-                                                ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof IMAGE_THUNK_DATA64);
+                                                ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof(IMAGE_THUNK_DATA64));
                                             }
                                         }
                                         if(hLoadedModuleSimulated)
                                         {
                                             VirtualFree((LPVOID)hLoadedModule, NULL, MEM_RELEASE);
                                         }
-                                        ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                                        ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                                     }
                                 }
                             }
@@ -2823,7 +2823,7 @@ __declspec(dllexport) bool TITCALL FixBrokenPE32FileExW(wchar_t* szFileName, LPV
                                 }
                                 if(NumberOfSections > 1)
                                 {
-                                    PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof IMAGE_SECTION_HEADER);
+                                    PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + sizeof(IMAGE_SECTION_HEADER));
                                     if(SectionVirtualSize > PESections->VirtualAddress || SectionVirtualSizeFixed > PESections->VirtualAddress)
                                     {
                                         PESections->Misc.VirtualSize = SectionVirtualSizeFixed;

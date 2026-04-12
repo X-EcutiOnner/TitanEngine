@@ -37,7 +37,7 @@ bool EngineCompareResourceString(wchar_t* String1, wchar_t* String2);
 ULONG_PTR EngineEstimateNewSectionRVA(ULONG_PTR FileMapVA);
 bool EngineExtractForwarderData(ULONG_PTR PossibleStringPtr, LPVOID szFwdDLLName, LPVOID szFwdAPIName);
 bool EngineGrabDataFromMappedFile(HANDLE hFile, ULONG_PTR FileMapVA, ULONG_PTR FileOffset, DWORD CopySize, LPVOID CopyToMemory);
-bool EngineExtractResource(char* szResourceName, wchar_t* szExtractedFileName);
+bool EngineExtractResource(const char* szResourceName, wchar_t* szExtractedFileName);
 bool EngineIsDependencyPresent(char* szFileName, char* szDependencyForFile, char* szPresentInFolder);
 bool EngineIsDependencyPresentW(wchar_t* szFileName, wchar_t* szDependencyForFile, wchar_t* szPresentInFolder);
 bool EngineGetDependencyLocation(char* szFileName, char* szDependencyForFile, void* szLocationOfTheFile, int MaxStringSize);

@@ -30,7 +30,7 @@ __declspec(dllexport) bool TITCALL MatchPatternEx(HANDLE hProcess, void* MemoryT
             {
                 if(ueNumberOfBytesRead == 0)
                 {
-                    if(VirtualQueryEx(hProcess, MemoryToCheck, &memoryInformation, sizeof memoryInformation) != NULL)
+                    if(VirtualQueryEx(hProcess, MemoryToCheck, &memoryInformation, sizeof(memoryInformation)) != NULL)
                     {
                         SizeOfMemoryToCheck = (int)((ULONG_PTR)memoryInformation.BaseAddress + memoryInformation.RegionSize - (ULONG_PTR)MemoryToCheck);
                         if(!ReadProcessMemory(hProcess, MemoryToCheck, ueReadBuffer, SizeOfMemoryToCheck, &ueNumberOfBytesRead))
@@ -104,7 +104,7 @@ __declspec(dllexport) ULONG_PTR TITCALL FindEx(HANDLE hProcess, LPVOID MemorySta
         {
             if(ueNumberOfBytesRead == NULL)
             {
-                if(VirtualQueryEx(hProcess, MemoryStart, &memoryInformation, sizeof memoryInformation) != NULL)
+                if(VirtualQueryEx(hProcess, MemoryStart, &memoryInformation, sizeof(memoryInformation)) != NULL)
                 {
                     MemorySize = (DWORD)((ULONG_PTR)memoryInformation.BaseAddress + memoryInformation.RegionSize - (ULONG_PTR)MemoryStart);
                     if(!MemoryReadSafe(hProcess, MemoryStart, ueReadBuffer, MemorySize, &ueNumberOfBytesRead))
@@ -175,7 +175,7 @@ __declspec(dllexport) bool TITCALL FillEx(HANDLE hProcess, LPVOID MemoryStart, D
         {
             FillByte = &defFillByte;
         }
-        VirtualQueryEx(hProcess, MemoryStart, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQueryEx(hProcess, MemoryStart, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         OldProtect = MemInfo.Protect;
         VirtualProtectEx(hProcess, MemoryStart, MemorySize, PAGE_EXECUTE_READWRITE, &OldProtect);
         for(i = 0; i < MemorySize; i++)
@@ -214,7 +214,7 @@ __declspec(dllexport) bool TITCALL PatchEx(HANDLE hProcess, LPVOID MemoryStart, 
 
     if(hProcess != NULL)
     {
-        VirtualQueryEx(hProcess, MemoryStart, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQueryEx(hProcess, MemoryStart, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         OldProtect = MemInfo.Protect;
         VirtualProtectEx(hProcess, MemoryStart, MemorySize, PAGE_EXECUTE_READWRITE, &OldProtect);
 
@@ -358,7 +358,7 @@ __declspec(dllexport) bool TITCALL MemoryReadSafe(HANDLE hProcess, LPVOID lpBase
         ULONG_PTR endAddr = (ULONG_PTR)lpBaseAddress + nSize;
         for(ULONG_PTR page = ALIGN_DOWN_BY(lpBaseAddress, TITANENGINE_PAGESIZE); page < endAddr; page += memInfo.RegionSize)
         {
-            if(0 == VirtualQueryEx(hProcess, (LPCVOID)page, &memInfo, sizeof memInfo))
+            if(0 == VirtualQueryEx(hProcess, (LPCVOID)page, &memInfo, sizeof(memInfo)))
                 break; // failure ('VirtualProtectEx' will fail too)
             memRegions.push_back(memInfo);
         }
@@ -430,7 +430,7 @@ __declspec(dllexport) bool TITCALL MemoryWriteSafe(HANDLE hProcess, LPVOID lpBas
         ULONG_PTR endAddr = (ULONG_PTR)lpBaseAddress + nSize;
         for(ULONG_PTR page = ALIGN_DOWN_BY(lpBaseAddress, TITANENGINE_PAGESIZE); page < endAddr; page += memInfo.RegionSize)
         {
-            if(0 == VirtualQueryEx(hProcess, (LPCVOID)page, &memInfo, sizeof memInfo))
+            if(0 == VirtualQueryEx(hProcess, (LPCVOID)page, &memInfo, sizeof(memInfo)))
                 break; // failure
             memRegions.push_back(memInfo);
         }

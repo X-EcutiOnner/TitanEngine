@@ -34,7 +34,7 @@ __declspec(dllexport) bool TITCALL RemoteLoadLibraryW(HANDLE hProcess, wchar_t* 
 
     if(hProcess != NULL)
     {
-        RtlZeroMemory(&APIData, sizeof InjectCodeData);
+        RtlZeroMemory(&APIData, sizeof(InjectCodeData));
         APIData.fLoadLibrary = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryW"));
         APIData.fFreeLibrary = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "FreeLibrary"));
         APIData.fGetModuleHandle = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetModuleHandleW"));
@@ -43,9 +43,9 @@ __declspec(dllexport) bool TITCALL RemoteLoadLibraryW(HANDLE hProcess, wchar_t* 
         APIData.fExitProcess = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "ExitProcess"));
         remCodeData = VirtualAllocEx(hProcess, NULL, remInjectSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
         remStringData = VirtualAllocEx(hProcess, NULL, 0x1000, MEM_COMMIT, PAGE_READWRITE);
-        if(WriteProcessMemory(hProcess, (LPVOID)((ULONG_PTR)remStringData + sizeof InjectCodeData), (LPCVOID)szLibraryFile, lstrlenW(szLibraryFile) * 2, &NumberOfBytesWritten))
+        if(WriteProcessMemory(hProcess, (LPVOID)((ULONG_PTR)remStringData + sizeof(InjectCodeData)), (LPCVOID)szLibraryFile, lstrlenW(szLibraryFile) * 2, &NumberOfBytesWritten))
         {
-            WriteProcessMemory(hProcess, remStringData, &APIData, sizeof InjectCodeData, &NumberOfBytesWritten);
+            WriteProcessMemory(hProcess, remStringData, &APIData, sizeof(InjectCodeData), &NumberOfBytesWritten);
             WriteProcessMemory(hProcess, remCodeData, (LPCVOID)&injectedRemoteLoadLibrary, remInjectSize, &NumberOfBytesWritten);
             if(WaitForThreadExit)
             {
@@ -120,7 +120,7 @@ __declspec(dllexport) bool TITCALL RemoteFreeLibraryW(HANDLE hProcess, HMODULE h
 
     if(hProcess != NULL)
     {
-        RtlZeroMemory(&APIData, sizeof InjectCodeData);
+        RtlZeroMemory(&APIData, sizeof(InjectCodeData));
         APIData.fLoadLibrary = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryW"));
         APIData.fFreeLibrary = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "FreeLibrary"));
         APIData.fGetModuleHandle = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetModuleHandleW"));
@@ -132,9 +132,9 @@ __declspec(dllexport) bool TITCALL RemoteFreeLibraryW(HANDLE hProcess, HMODULE h
         if(hModule == NULL)
         {
             remStringData = VirtualAllocEx(hProcess, NULL, 0x1000, MEM_COMMIT, PAGE_READWRITE);
-            if(WriteProcessMemory(hProcess, (LPVOID)((ULONG_PTR)remStringData + sizeof InjectCodeData), (LPCVOID)szLibraryFile, lstrlenW(szLibraryFile) * 2, &NumberOfBytesWritten))
+            if(WriteProcessMemory(hProcess, (LPVOID)((ULONG_PTR)remStringData + sizeof(InjectCodeData)), (LPCVOID)szLibraryFile, lstrlenW(szLibraryFile) * 2, &NumberOfBytesWritten))
             {
-                WriteProcessMemory(hProcess, remStringData, &APIData, sizeof InjectCodeData, &NumberOfBytesWritten);
+                WriteProcessMemory(hProcess, remStringData, &APIData, sizeof(InjectCodeData), &NumberOfBytesWritten);
                 WriteProcessMemory(hProcess, remCodeData, (LPCVOID)&injectedRemoteFreeLibrarySimple, remInjectSize1, &NumberOfBytesWritten);
                 if(WaitForThreadExit)
                 {
@@ -179,7 +179,7 @@ __declspec(dllexport) bool TITCALL RemoteFreeLibraryW(HANDLE hProcess, HMODULE h
         else
         {
             remStringData = VirtualAllocEx(hProcess, NULL, 0x1000, MEM_COMMIT, PAGE_READWRITE);
-            if(WriteProcessMemory(hProcess, remStringData, &APIData, sizeof InjectCodeData, &NumberOfBytesWritten))
+            if(WriteProcessMemory(hProcess, remStringData, &APIData, sizeof(InjectCodeData), &NumberOfBytesWritten))
             {
                 WriteProcessMemory(hProcess, remCodeData, (LPCVOID)&injectedRemoteFreeLibrary, remInjectSize2, &NumberOfBytesWritten);
                 if(WaitForThreadExit)
@@ -235,7 +235,7 @@ __declspec(dllexport) bool TITCALL RemoteExitProcess(HANDLE hProcess, DWORD Exit
 
     if(hProcess != NULL)
     {
-        RtlZeroMemory(&APIData, sizeof InjectCodeData);
+        RtlZeroMemory(&APIData, sizeof(InjectCodeData));
         APIData.fLoadLibrary = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA"));
         APIData.fFreeLibrary = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "FreeLibrary"));
         APIData.fGetModuleHandle = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetModuleHandleA"));
@@ -247,7 +247,7 @@ __declspec(dllexport) bool TITCALL RemoteExitProcess(HANDLE hProcess, DWORD Exit
         remCodeData = VirtualAllocEx(hProcess, NULL, remInjectSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
         if(WriteProcessMemory(hProcess, remCodeData, (LPCVOID)&injectedExitProcess, remInjectSize, &NumberOfBytesWritten))
         {
-            WriteProcessMemory(hProcess, remStringData, &APIData, sizeof InjectCodeData, &NumberOfBytesWritten);
+            WriteProcessMemory(hProcess, remStringData, &APIData, sizeof(InjectCodeData), &NumberOfBytesWritten);
             hThread = CreateRemoteThread(hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)remCodeData, remStringData, NULL, &ThreadId);
             VirtualFreeEx(hProcess, remCodeData, NULL, MEM_RELEASE);
             return true;

@@ -250,17 +250,17 @@ __declspec(dllexport) long TITCALL RealignPEExW(wchar_t* szFileName, DWORD Reali
     HANDLE FileMap;
     ULONG_PTR FileMapVA;
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_ALL, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))

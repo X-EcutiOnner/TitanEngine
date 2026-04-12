@@ -49,18 +49,18 @@ bool MapFileEx(const char* szFileName, DWORD ReadOrWrite, LPHANDLE FileHandle, L
             LPVOID mfFileMapVA = MapViewOfFile(mfFileMap, FileMapViewType, NULL, NULL, NULL);
             if(mfFileMapVA != NULL)
             {
-                RtlMoveMemory(FileMapVA, &mfFileMapVA, sizeof ULONG_PTR);
+                RtlMoveMemory(FileMapVA, &mfFileMapVA, sizeof(ULONG_PTR));
                 return true;
             }
         }
-        RtlZeroMemory(FileMapVA, sizeof ULONG_PTR);
+        RtlZeroMemory(FileMapVA, sizeof(ULONG_PTR));
         *FileHandle = NULL;
         *FileSize = NULL;
         EngineCloseHandle(hFile);
     }
     else
     {
-        RtlZeroMemory(FileMapVA, sizeof ULONG_PTR);
+        RtlZeroMemory(FileMapVA, sizeof(ULONG_PTR));
     }
     return false;
 }
@@ -110,18 +110,18 @@ bool MapFileExW(const wchar_t* szFileName, DWORD ReadOrWrite, LPHANDLE FileHandl
             LPVOID mfFileMapVA = MapViewOfFile(mfFileMap, FileMapViewType, NULL, NULL, NULL);
             if(mfFileMapVA != NULL)
             {
-                RtlMoveMemory(FileMapVA, &mfFileMapVA, sizeof ULONG_PTR);
+                RtlMoveMemory(FileMapVA, &mfFileMapVA, sizeof(ULONG_PTR));
                 return true;
             }
         }
-        RtlZeroMemory(FileMapVA, sizeof ULONG_PTR);
+        RtlZeroMemory(FileMapVA, sizeof(ULONG_PTR));
         *FileHandle = NULL;
         *FileSize = NULL;
         EngineCloseHandle(hFile);
     }
     else
     {
-        RtlZeroMemory(FileMapVA, sizeof ULONG_PTR);
+        RtlZeroMemory(FileMapVA, sizeof(ULONG_PTR));
     }
     return false;
 }

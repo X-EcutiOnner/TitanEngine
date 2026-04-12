@@ -15,11 +15,11 @@ __declspec(dllexport) bool TITCALL GetRemoteString(HANDLE hProcess, LPVOID Strin
     {
         MaximumStringSize = 512;
     }
-    VirtualQueryEx(hProcess, (LPVOID)StringAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+    VirtualQueryEx(hProcess, (LPVOID)StringAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
     if((int)((ULONG_PTR)MemInfo.BaseAddress + (ULONG_PTR)MemInfo.RegionSize - (ULONG_PTR)StringAddress) < MaximumStringSize)
     {
         StringReadSize = (DWORD)((ULONG_PTR)StringAddress - (ULONG_PTR)MemInfo.BaseAddress);
-        VirtualQueryEx(hProcess, (LPVOID)((ULONG_PTR)StringAddress + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQueryEx(hProcess, (LPVOID)((ULONG_PTR)StringAddress + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         if(MemInfo.State == MEM_COMMIT)
         {
             StringReadSize = MaximumStringSize;
@@ -94,17 +94,17 @@ __declspec(dllexport) ULONG_PTR TITCALL GetFunctionParameter(HANDLE hProcess, DW
         {
             StackSecondReadSize = 0;
         }
-        StackReadSize = sizeof ULONG_PTR;
+        StackReadSize = sizeof(ULONG_PTR);
     }
     if(FunctionType >= UE_FUNCTION_STDCALL && FunctionType <= UE_FUNCTION_CCALL_CALL && FunctionType != UE_FUNCTION_FASTCALL_RET)
     {
         StackReadAddress = (ULONG_PTR)GetContextData(UE_CSP);
         if(FunctionType != UE_FUNCTION_FASTCALL_CALL)
         {
-            StackReadAddress = StackReadAddress + (ParameterNumber * sizeof ULONG_PTR);
+            StackReadAddress = StackReadAddress + (ParameterNumber * sizeof(ULONG_PTR));
             if(FunctionType >= UE_FUNCTION_STDCALL_CALL)
             {
-                StackReadAddress = StackReadAddress - sizeof ULONG_PTR;
+                StackReadAddress = StackReadAddress - sizeof(ULONG_PTR);
             }
         }
         else
@@ -152,23 +152,23 @@ __declspec(dllexport) ULONG_PTR TITCALL GetFunctionParameter(HANDLE hProcess, DW
             }
             else
             {
-                StackReadAddress = StackReadAddress + 0x20 + ((ParameterNumber - 4) * sizeof ULONG_PTR) - sizeof ULONG_PTR;
+                StackReadAddress = StackReadAddress + 0x20 + ((ParameterNumber - 4) * sizeof(ULONG_PTR)) - sizeof(ULONG_PTR);
             }
         }
-        if(ReadProcessMemory(hProcess, (LPVOID)StackReadAddress, &StackReadBuffer, sizeof ULONG_PTR, &ueNumberOfBytesRW))
+        if(ReadProcessMemory(hProcess, (LPVOID)StackReadAddress, &StackReadBuffer, sizeof(ULONG_PTR), &ueNumberOfBytesRW))
         {
             if(!ValueIsPointer)
             {
-                RtlMoveMemory((LPVOID)((ULONG_PTR)&StackFinalBuffer + sizeof ULONG_PTR - StackReadSize), (LPVOID)((ULONG_PTR)&StackReadBuffer + sizeof ULONG_PTR - StackReadSize), StackReadSize);
+                RtlMoveMemory((LPVOID)((ULONG_PTR)&StackFinalBuffer + sizeof(ULONG_PTR) - StackReadSize), (LPVOID)((ULONG_PTR)&StackReadBuffer + sizeof(ULONG_PTR) - StackReadSize), StackReadSize);
             }
             else
             {
                 StackReadAddress = StackReadBuffer;
                 if(StackSecondReadSize > NULL)
                 {
-                    if(ReadProcessMemory(hProcess, (LPVOID)StackReadAddress, &StackReadBuffer, sizeof ULONG_PTR, &ueNumberOfBytesRW))
+                    if(ReadProcessMemory(hProcess, (LPVOID)StackReadAddress, &StackReadBuffer, sizeof(ULONG_PTR), &ueNumberOfBytesRW))
                     {
-                        RtlMoveMemory((LPVOID)((ULONG_PTR)&StackFinalBuffer + sizeof ULONG_PTR - StackSecondReadSize), (LPVOID)((ULONG_PTR)&StackReadBuffer + sizeof ULONG_PTR - StackSecondReadSize), StackSecondReadSize);
+                        RtlMoveMemory((LPVOID)((ULONG_PTR)&StackFinalBuffer + sizeof(ULONG_PTR) - StackSecondReadSize), (LPVOID)((ULONG_PTR)&StackReadBuffer + sizeof(ULONG_PTR) - StackSecondReadSize), StackSecondReadSize);
                     }
                     else
                     {
@@ -177,11 +177,11 @@ __declspec(dllexport) ULONG_PTR TITCALL GetFunctionParameter(HANDLE hProcess, DW
                 }
                 else
                 {
-                    VirtualQueryEx(hProcess, (LPVOID)StackReadAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+                    VirtualQueryEx(hProcess, (LPVOID)StackReadAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
                     if((ULONG_PTR)MemInfo.BaseAddress + (ULONG_PTR)MemInfo.RegionSize - StackReadAddress < 512)
                     {
                         StringReadSize = (DWORD)((ULONG_PTR)StackReadAddress - (ULONG_PTR)MemInfo.BaseAddress);
-                        VirtualQueryEx(hProcess, (LPVOID)(StackReadAddress + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+                        VirtualQueryEx(hProcess, (LPVOID)(StackReadAddress + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
                         if(MemInfo.State == MEM_COMMIT)
                         {
                             StringReadSize = 512;
@@ -221,7 +221,7 @@ __declspec(dllexport) ULONG_PTR TITCALL GetJumpDestinationEx(HANDLE hProcess, UL
 
     if(hProcess != NULL)
     {
-        VirtualQueryEx(hProcess, (LPVOID)InstructionAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQueryEx(hProcess, (LPVOID)InstructionAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         if(MemInfo.RegionSize > NULL)
         {
             if(ReadProcessMemory(hProcess, (LPVOID)InstructionAddress, ReadMemory, MAXIMUM_INSTRUCTION_SIZE, &ueNumberOfBytesRead))
@@ -305,7 +305,7 @@ __declspec(dllexport) ULONG_PTR TITCALL GetJumpDestinationEx(HANDLE hProcess, UL
                 {
                     RtlMoveMemory(&ReadMemData, (LPVOID)((ULONG_PTR)ReadMemory + 2), 4);
                     TargetedAddress = ReadMemData;
-                    if(sizeof HANDLE == 8)
+                    if(sizeof(HANDLE) == 8)
                     {
                         TargetedAddress = TargetedAddress + InstructionAddress;
                     }
@@ -314,7 +314,7 @@ __declspec(dllexport) ULONG_PTR TITCALL GetJumpDestinationEx(HANDLE hProcess, UL
                 {
                     RtlMoveMemory(&ReadMemData, (LPVOID)((ULONG_PTR)ReadMemory + 2), 4);
                     TargetedAddress = ReadMemData;
-                    if(sizeof HANDLE == 8)
+                    if(sizeof(HANDLE) == 8)
                     {
                         TargetedAddress = TargetedAddress + InstructionAddress;
                     }
@@ -440,7 +440,7 @@ __declspec(dllexport) ULONG_PTR TITCALL GetJumpDestinationEx(HANDLE hProcess, UL
         {
             RtlMoveMemory(&ReadMemData, (LPVOID)((ULONG_PTR)InstructionAddress + 2), 4);
             TargetedAddress = ReadMemData;
-            if(sizeof HANDLE == 8)
+            if(sizeof(HANDLE) == 8)
             {
                 TargetedAddress = TargetedAddress + InstructionAddress;
             }
@@ -449,7 +449,7 @@ __declspec(dllexport) ULONG_PTR TITCALL GetJumpDestinationEx(HANDLE hProcess, UL
         {
             RtlMoveMemory(&ReadMemData, (LPVOID)((ULONG_PTR)InstructionAddress + 2), 4);
             TargetedAddress = ReadMemData;
-            if(sizeof HANDLE == 8)
+            if(sizeof(HANDLE) == 8)
             {
                 TargetedAddress = TargetedAddress + InstructionAddress;
             }

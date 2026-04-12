@@ -1,5 +1,11 @@
 #include "stdafx.h"
 #include "definitions.h"
+
+static inline HANDLE HandleFromNtHandle(USHORT handle)
+{
+    return (HANDLE)(ULONG_PTR)handle;
+}
+
 #include "Global.Handle.h"
 #include "Global.Engine.h"
 
@@ -59,7 +65,7 @@ __declspec(dllexport) bool TITCALL HandlerIsHandleOpen(DWORD ProcessId, HANDLE h
 
     for(ULONG i = 0; i < HandleInfo->NumberOfHandles; i++)
     {
-        if((DWORD)pHandle->UniqueProcessId == ProcessId && (HANDLE)pHandle->HandleValue == hHandle)
+        if((DWORD)pHandle->UniqueProcessId == ProcessId && (HANDLE)(ULONG_PTR)pHandle->HandleValue == hHandle)
         {
             HandleActive = true;
             break;
@@ -92,7 +98,7 @@ __declspec(dllexport) void* TITCALL HandlerGetHandleNameW(HANDLE hProcess, DWORD
 
     for(ULONG i = 0; i < HandleInfo->NumberOfHandles; i++)
     {
-        if((DWORD)pHandle->UniqueProcessId == ProcessId && (HANDLE)pHandle->HandleValue == hHandle)
+        if((DWORD)pHandle->UniqueProcessId == ProcessId && (HANDLE)(ULONG_PTR)pHandle->HandleValue == hHandle)
         {
             if(pHandle->GrantedAccess != 0x0012019F) //Filter, because this GrantedAccess type can cause deadlocks!
             {
@@ -162,19 +168,19 @@ __declspec(dllexport) long TITCALL HandlerEnumerateOpenHandles(DWORD ProcessId, 
         return 0;
     LPVOID QuerySystemBuffer = hinfo.GetPtr();
 
-    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof ULONG);
+    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof(ULONG));
     QuerySystemBuffer = (LPVOID)((ULONG_PTR)QuerySystemBuffer + 4);
     HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)QuerySystemBuffer;
     while(TotalHandleCount > NULL)
     {
         if(HandleInfo->ProcessId == ProcessId && HandleCount < MaxHandleCount)
         {
-            myHandle = (HANDLE)HandleInfo->hHandle;
-            RtlMoveMemory(HandleBuffer, &myHandle, sizeof HANDLE);
-            HandleBuffer = (LPVOID)((ULONG_PTR)HandleBuffer + sizeof HANDLE);
+            myHandle = HandleFromNtHandle(HandleInfo->hHandle);
+            RtlMoveMemory(HandleBuffer, &myHandle, sizeof(HANDLE));
+            HandleBuffer = (LPVOID)((ULONG_PTR)HandleBuffer + sizeof(HANDLE));
             HandleCount++;
         }
-        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof NTDLL_QUERY_HANDLE_INFO);
+        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof(NTDLL_QUERY_HANDLE_INFO));
         TotalHandleCount--;
     }
     return(HandleCount);
@@ -199,17 +205,17 @@ __declspec(dllexport) ULONG_PTR TITCALL HandlerGetHandleDetails(HANDLE hProcess,
         return 0;
     LPVOID QuerySystemBuffer = hinfo.GetPtr();
 
-    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof ULONG);
+    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof(ULONG));
     QuerySystemBuffer = (LPVOID)((ULONG_PTR)QuerySystemBuffer + 4);
     HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)QuerySystemBuffer;
     while(TotalHandleCount > NULL)
     {
-        if(HandleInfo->ProcessId == ProcessId && (HANDLE)HandleInfo->hHandle == hHandle)
+        if(HandleInfo->ProcessId == ProcessId && HandleFromNtHandle(HandleInfo->hHandle) == hHandle)
         {
             if(DuplicateHandle(hProcess, hHandle, GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
             {
-                RtlZeroMemory(&ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION);
-                NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION, &RequiredSize);
+                RtlZeroMemory(&ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION));
+                NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION), &RequiredSize);
                 if(InformationReturn == UE_OPTION_HANDLER_RETURN_HANDLECOUNT)
                 {
                     ReturnData = (ULONG_PTR)ObjectBasicInfo.HandleCount;
@@ -261,7 +267,7 @@ __declspec(dllexport) ULONG_PTR TITCALL HandlerGetHandleDetails(HANDLE hProcess,
                 break;
             }
         }
-        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof NTDLL_QUERY_HANDLE_INFO);
+        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof(NTDLL_QUERY_HANDLE_INFO));
         TotalHandleCount--;
     }
     if(!DontFreeStringMemory)
@@ -323,7 +329,7 @@ __declspec(dllexport) long TITCALL HandlerEnumerateLockHandlesW(wchar_t* szFileO
     LPVOID QuerySystemBuffer = hinfo.GetPtr();
 
 
-    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof ULONG);
+    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof(ULONG));
     QuerySystemBuffer = (LPVOID)((ULONG_PTR)QuerySystemBuffer + 4);
     HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)QuerySystemBuffer;
     while(TotalHandleCount > NULL)
@@ -342,10 +348,10 @@ __declspec(dllexport) long TITCALL HandlerEnumerateLockHandlesW(wchar_t* szFileO
             //if(!(HandleInfo->GrantedAccess & SYNCHRONIZE) || ((HandleInfo->GrantedAccess & SYNCHRONIZE) && ((WORD)HandleInfo->GrantedAccess != 0x19F9))){// && (WORD)HandleInfo->GrantedAccess != 0x89))){
             if(HandleInfo->GrantedAccess != 0x0012019F)
             {
-                if(DuplicateHandle(hProcess, (HANDLE)HandleInfo->hHandle, GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
+                if(DuplicateHandle(hProcess, HandleFromNtHandle(HandleInfo->hHandle), GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
                 {
-                    RtlZeroMemory(&ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION);
-                    NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION, &RequiredSize);
+                    RtlZeroMemory(&ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION));
+                    NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION), &RequiredSize);
                     NtQueryObject(myHandle, ObjectNameInformation, ObjectNameInfo, 8, &RequiredSize);
                     NtQueryObject(myHandle, ObjectNameInformation, ObjectNameInfo, RequiredSize, &RequiredSize);
                     RtlZeroMemory(HandleFullName, 0x1000);
@@ -370,11 +376,11 @@ __declspec(dllexport) long TITCALL HandlerEnumerateLockHandlesW(wchar_t* szFileO
                         }
                         if(lstrcmpiW((LPCWSTR)HandleFullName, szFileOrFolderName) == NULL && MaxHandleCount > NULL)
                         {
-                            RtlMoveMemory(HandleDataBuffer, &HandleInfo->ProcessId, sizeof ULONG);
-                            HandleDataBuffer = (LPVOID)((ULONG_PTR)HandleDataBuffer + sizeof ULONG);
-                            CopyHandle = (HANDLE)HandleInfo->hHandle;
-                            RtlMoveMemory(HandleDataBuffer, &CopyHandle, sizeof HANDLE);
-                            HandleDataBuffer = (LPVOID)((ULONG_PTR)HandleDataBuffer + sizeof HANDLE);
+                            RtlMoveMemory(HandleDataBuffer, &HandleInfo->ProcessId, sizeof(ULONG));
+                            HandleDataBuffer = (LPVOID)((ULONG_PTR)HandleDataBuffer + sizeof(ULONG));
+                            CopyHandle = HandleFromNtHandle(HandleInfo->hHandle);
+                            RtlMoveMemory(HandleDataBuffer, &CopyHandle, sizeof(HANDLE));
+                            HandleDataBuffer = (LPVOID)((ULONG_PTR)HandleDataBuffer + sizeof(HANDLE));
                             FoundHandles++;
                             MaxHandleCount--;
                         }
@@ -383,7 +389,7 @@ __declspec(dllexport) long TITCALL HandlerEnumerateLockHandlesW(wchar_t* szFileO
                 }
             }
         }
-        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof NTDLL_QUERY_HANDLE_INFO);
+        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof(NTDLL_QUERY_HANDLE_INFO));
         TotalHandleCount--;
     }
 
@@ -430,7 +436,7 @@ __declspec(dllexport) bool TITCALL HandlerCloseAllLockHandlesW(wchar_t* szFileOr
     LPVOID QuerySystemBuffer = hinfo.GetPtr();
 
 
-    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof ULONG);
+    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof(ULONG));
     QuerySystemBuffer = (LPVOID)((ULONG_PTR)QuerySystemBuffer + 4);
     HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)QuerySystemBuffer;
     while(TotalHandleCount > NULL)
@@ -449,10 +455,10 @@ __declspec(dllexport) bool TITCALL HandlerCloseAllLockHandlesW(wchar_t* szFileOr
             //if(!(HandleInfo->GrantedAccess & SYNCHRONIZE) || ((HandleInfo->GrantedAccess & SYNCHRONIZE) && ((WORD)HandleInfo->GrantedAccess != 0x19F9))){// && (WORD)HandleInfo->GrantedAccess != 0x89))){
             if(HandleInfo->GrantedAccess != 0x0012019F)
             {
-                if(DuplicateHandle(hProcess, (HANDLE)HandleInfo->hHandle, GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
+                if(DuplicateHandle(hProcess, HandleFromNtHandle(HandleInfo->hHandle), GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
                 {
-                    RtlZeroMemory(&ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION);
-                    NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION, &RequiredSize);
+                    RtlZeroMemory(&ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION));
+                    NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION), &RequiredSize);
                     NtQueryObject(myHandle, ObjectNameInformation, ObjectNameInfo, 8, &RequiredSize);
                     NtQueryObject(myHandle, ObjectNameInformation, ObjectNameInfo, RequiredSize, &RequiredSize);
                     RtlZeroMemory(HandleFullName, 0x1000);
@@ -477,7 +483,7 @@ __declspec(dllexport) bool TITCALL HandlerCloseAllLockHandlesW(wchar_t* szFileOr
                         }
                         if(lstrcmpiW((LPCWSTR)HandleFullName, szFileOrFolderName) == NULL)
                         {
-                            if(!HandlerCloseRemoteHandle(hProcess, (HANDLE)HandleInfo->hHandle))
+                            if(!HandlerCloseRemoteHandle(hProcess, HandleFromNtHandle(HandleInfo->hHandle)))
                             {
                                 AllHandled = false;
                             }
@@ -487,7 +493,7 @@ __declspec(dllexport) bool TITCALL HandlerCloseAllLockHandlesW(wchar_t* szFileOr
                 }
             }
         }
-        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof NTDLL_QUERY_HANDLE_INFO);
+        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof(NTDLL_QUERY_HANDLE_INFO));
         TotalHandleCount--;
     }
 
@@ -533,7 +539,7 @@ __declspec(dllexport) bool TITCALL HandlerIsFileLockedW(wchar_t* szFileOrFolderN
     LPVOID QuerySystemBuffer = hinfo.GetPtr();
 
 
-    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof ULONG);
+    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof(ULONG));
     QuerySystemBuffer = (LPVOID)((ULONG_PTR)QuerySystemBuffer + 4);
     HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)QuerySystemBuffer;
     while(TotalHandleCount > NULL)
@@ -552,10 +558,10 @@ __declspec(dllexport) bool TITCALL HandlerIsFileLockedW(wchar_t* szFileOrFolderN
             //if(!(HandleInfo->GrantedAccess & SYNCHRONIZE) || ((HandleInfo->GrantedAccess & SYNCHRONIZE) && ((WORD)HandleInfo->GrantedAccess != 0x19F9))){// && (WORD)HandleInfo->GrantedAccess != 0x89))){
             if(HandleInfo->GrantedAccess != 0x0012019F)
             {
-                if(DuplicateHandle(hProcess, (HANDLE)HandleInfo->hHandle, GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
+                if(DuplicateHandle(hProcess, HandleFromNtHandle(HandleInfo->hHandle), GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
                 {
-                    RtlZeroMemory(&ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION);
-                    NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof OBJECT_BASIC_INFORMATION, &RequiredSize);
+                    RtlZeroMemory(&ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION));
+                    NtQueryObject(myHandle, ObjectBasicInformation, &ObjectBasicInfo, sizeof(OBJECT_BASIC_INFORMATION), &RequiredSize);
                     NtQueryObject(myHandle, ObjectNameInformation, ObjectNameInfo, 8, &RequiredSize);
                     NtQueryObject(myHandle, ObjectNameInformation, ObjectNameInfo, RequiredSize, &RequiredSize);
                     RtlZeroMemory(HandleFullName, 0x1000);
@@ -588,7 +594,7 @@ __declspec(dllexport) bool TITCALL HandlerIsFileLockedW(wchar_t* szFileOrFolderN
                 }
             }
         }
-        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof NTDLL_QUERY_HANDLE_INFO);
+        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof(NTDLL_QUERY_HANDLE_INFO));
         TotalHandleCount--;
     }
     return false;
@@ -615,7 +621,7 @@ __declspec(dllexport) long TITCALL HandlerEnumerateOpenMutexes(HANDLE hProcess, 
         return 0;
     LPVOID QuerySystemBuffer = hinfo.GetPtr();
 
-    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof ULONG);
+    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof(ULONG));
     QuerySystemBuffer = (LPVOID)((ULONG_PTR)QuerySystemBuffer + 4);
     HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)QuerySystemBuffer;
     while(TotalHandleCount > NULL)
@@ -625,7 +631,7 @@ __declspec(dllexport) long TITCALL HandlerEnumerateOpenMutexes(HANDLE hProcess, 
             //if(!(HandleInfo->GrantedAccess & SYNCHRONIZE) || ((HandleInfo->GrantedAccess & SYNCHRONIZE) && ((WORD)HandleInfo->GrantedAccess != 0x19F9))){// && (WORD)HandleInfo->GrantedAccess != 0x89))){
             if(HandleInfo->GrantedAccess != 0x0012019F)
             {
-                if(DuplicateHandle(hProcess, (HANDLE)HandleInfo->hHandle, GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
+                if(DuplicateHandle(hProcess, HandleFromNtHandle(HandleInfo->hHandle), GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
                 {
                     RtlZeroMemory(HandleFullData, sizeof(HandleFullData));
                     NtQueryObject(myHandle, ObjectTypeInformation, HandleFullData, 8, &RequiredSize);
@@ -636,9 +642,9 @@ __declspec(dllexport) long TITCALL HandlerEnumerateOpenMutexes(HANDLE hProcess, 
                         WideCharToMultiByte(CP_ACP, NULL, (LPCWSTR)pObjectTypeInfo->TypeName.Buffer, -1, (LPSTR)HandleNameData, 0x1000, NULL, NULL);
                         if(lstrcmpiA((LPCSTR)HandleNameData, "Mutant") == NULL)
                         {
-                            copyHandle = (HANDLE)HandleInfo->hHandle;
-                            RtlMoveMemory(HandleBuffer, &copyHandle, sizeof HANDLE);
-                            HandleBuffer = (LPVOID)((ULONG_PTR)HandleBuffer + sizeof HANDLE);
+                            copyHandle = HandleFromNtHandle(HandleInfo->hHandle);
+                            RtlMoveMemory(HandleBuffer, &copyHandle, sizeof(HANDLE));
+                            HandleBuffer = (LPVOID)((ULONG_PTR)HandleBuffer + sizeof(HANDLE));
                             HandleCount++;
                         }
                     }
@@ -646,7 +652,7 @@ __declspec(dllexport) long TITCALL HandlerEnumerateOpenMutexes(HANDLE hProcess, 
                 }
             }
         }
-        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof NTDLL_QUERY_HANDLE_INFO);
+        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof(NTDLL_QUERY_HANDLE_INFO));
         TotalHandleCount--;
     }
     return(HandleCount);
@@ -675,7 +681,7 @@ __declspec(dllexport) ULONG_PTR TITCALL HandlerGetOpenMutexHandleW(HANDLE hProce
     HANDLE myHandle;
     char HandleBuffer[0x1000] = {0};
     LPVOID cHandleBuffer = HandleBuffer;
-    int OpenHandleCount = HandlerEnumerateOpenMutexes(hProcess, ProcessId, HandleBuffer, 0x1000 / sizeof HANDLE);
+    int OpenHandleCount = HandlerEnumerateOpenMutexes(hProcess, ProcessId, HandleBuffer, 0x1000 / sizeof(HANDLE));
     wchar_t RealMutexName[512] = L"\\BaseNamedObjects\\";
     wchar_t* HandleName;
 
@@ -684,7 +690,7 @@ __declspec(dllexport) ULONG_PTR TITCALL HandlerGetOpenMutexHandleW(HANDLE hProce
         lstrcatW(RealMutexName, szMutexString);
         for(i = 0; i < OpenHandleCount; i++)
         {
-            RtlMoveMemory(&myHandle, cHandleBuffer, sizeof HANDLE);
+            RtlMoveMemory(&myHandle, cHandleBuffer, sizeof(HANDLE));
             HandleName = (wchar_t*)HandlerGetHandleNameW(hProcess, ProcessId, myHandle, true);
             if(HandleName != NULL)
             {
@@ -693,7 +699,7 @@ __declspec(dllexport) ULONG_PTR TITCALL HandlerGetOpenMutexHandleW(HANDLE hProce
                     return((ULONG_PTR)myHandle);
                 }
             }
-            cHandleBuffer = (LPVOID)((ULONG_PTR)cHandleBuffer + sizeof HANDLE);
+            cHandleBuffer = (LPVOID)((ULONG_PTR)cHandleBuffer + sizeof(HANDLE));
         }
     }
     return(NULL);
@@ -738,7 +744,7 @@ __declspec(dllexport) long TITCALL HandlerGetProcessIdWhichCreatedMutexW(wchar_t
         return 0;
     LPVOID QuerySystemBuffer = hinfo.GetPtr();
 
-    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof ULONG);
+    RtlMoveMemory(&TotalHandleCount, QuerySystemBuffer, sizeof(ULONG));
     QuerySystemBuffer = (LPVOID)((ULONG_PTR)QuerySystemBuffer + 4);
     HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)QuerySystemBuffer;
     while(TotalHandleCount > NULL)
@@ -757,7 +763,7 @@ __declspec(dllexport) long TITCALL HandlerGetProcessIdWhichCreatedMutexW(wchar_t
             //if(!(HandleInfo->GrantedAccess & SYNCHRONIZE) || ((HandleInfo->GrantedAccess & SYNCHRONIZE) && ((WORD)HandleInfo->GrantedAccess != 0x19F9))){// && (WORD)HandleInfo->GrantedAccess != 0x89))){
             if(HandleInfo->GrantedAccess != 0x0012019F)
             {
-                if(DuplicateHandle(hProcess, (HANDLE)HandleInfo->hHandle, GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
+                if(DuplicateHandle(hProcess, HandleFromNtHandle(HandleInfo->hHandle), GetCurrentProcess(), &myHandle, NULL, false, DUPLICATE_SAME_ACCESS))
                 {
                     RtlZeroMemory(HandleFullData, sizeof(HandleFullData));
                     NtQueryObject(myHandle, ObjectTypeInformation, HandleFullData, 8, &RequiredSize);
@@ -788,7 +794,7 @@ __declspec(dllexport) long TITCALL HandlerGetProcessIdWhichCreatedMutexW(wchar_t
                 }
             }
         }
-        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof NTDLL_QUERY_HANDLE_INFO);
+        HandleInfo = (PNTDLL_QUERY_HANDLE_INFO)((ULONG_PTR)HandleInfo + sizeof(NTDLL_QUERY_HANDLE_INFO));
         TotalHandleCount--;
     }
     return(ReturnData);

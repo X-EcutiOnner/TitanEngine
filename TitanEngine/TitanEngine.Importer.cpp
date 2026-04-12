@@ -420,9 +420,9 @@ __declspec(dllexport) bool TITCALL ImporterLoadImportTableW(wchar_t* szFileName)
                                     ImporterAddNewAPI((char*)ConvertVAtoFileOffset(FileMapVA, (ULONG_PTR)((ULONG_PTR)ThunkData32->u1.AddressOfData + 2 + PEHeader32->OptionalHeader.ImageBase), true), (ULONG_PTR)CurrentThunk + PEHeader32->OptionalHeader.ImageBase);
                                 }
                                 CurrentThunk = CurrentThunk + 4;
-                                ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof IMAGE_THUNK_DATA32);
+                                ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof(IMAGE_THUNK_DATA32));
                             }
-                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                         }
                         UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
                         return true;
@@ -467,9 +467,9 @@ __declspec(dllexport) bool TITCALL ImporterLoadImportTableW(wchar_t* szFileName)
                                     ImporterAddNewAPI((char*)ConvertVAtoFileOffset(FileMapVA, (ULONG_PTR)((ULONG_PTR)ThunkData64->u1.AddressOfData + 2 + (ULONG_PTR)PEHeader64->OptionalHeader.ImageBase), true), (ULONG_PTR)CurrentThunk + (ULONG_PTR)PEHeader64->OptionalHeader.ImageBase);
                                 }
                                 CurrentThunk = CurrentThunk + 8;
-                                ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof IMAGE_THUNK_DATA64);
+                                ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof(IMAGE_THUNK_DATA64));
                             }
-                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                         }
                         UnMapFileEx(FileHandle, FileSize, FileMap, FileMapVA);
                         return true;
@@ -539,8 +539,8 @@ __declspec(dllexport) void TITCALL ImporterAutoSearchIATW(DWORD ProcessId, wchar
         scylla_getImports(iatStart, iatSize, ProcessId);
     }
 
-    RtlMoveMemory(pIATStart, &iatStart, sizeof ULONG_PTR);
-    RtlMoveMemory(pIATSize, &iatSize, sizeof ULONG_PTR);
+    RtlMoveMemory(pIATStart, &iatStart, sizeof(ULONG_PTR));
+    RtlMoveMemory(pIATSize, &iatSize, sizeof(ULONG_PTR));
 
     return;
 }
@@ -550,8 +550,8 @@ __declspec(dllexport) void TITCALL ImporterAutoSearchIATEx(DWORD ProcessId, ULON
     wchar_t szTempName[MAX_PATH];
     wchar_t szTempFolder[MAX_PATH];
 
-    RtlZeroMemory(&szTempName, sizeof szTempName);
-    RtlZeroMemory(&szTempFolder, sizeof szTempFolder);
+    RtlZeroMemory(&szTempName, sizeof(szTempName));
+    RtlZeroMemory(&szTempFolder, sizeof(szTempFolder));
     if(GetTempPathW(MAX_PATH, szTempFolder) < MAX_PATH)
     {
         if(GetTempFileNameW(szTempFolder, L"DumpTemp", GetTickCount() + 102, szTempName))
@@ -568,7 +568,7 @@ __declspec(dllexport) void TITCALL ImporterEnumAddedData(LPVOID EnumCallBack)
 {
     return scylla_enumImportTree(EnumCallBack);
 }
-__declspec(dllexport) long TITCALL ImporterAutoFixIATEx(DWORD ProcessId, char* szDumpedFile, char* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart, bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback)
+__declspec(dllexport) long TITCALL ImporterAutoFixIATEx(DWORD ProcessId, const char* szDumpedFile, const char* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart, bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback)
 {
 
     wchar_t uniDumpedFile[MAX_PATH] = {};
@@ -585,7 +585,7 @@ __declspec(dllexport) long TITCALL ImporterAutoFixIATEx(DWORD ProcessId, char* s
         return(NULL);   // Critical error! *just to be safe, but it should never happen!
     }
 }
-__declspec(dllexport) long TITCALL ImporterAutoFixIATExW(DWORD ProcessId, wchar_t* szDumpedFile, wchar_t* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart,  bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback)
+__declspec(dllexport) long TITCALL ImporterAutoFixIATExW(DWORD ProcessId, const wchar_t* szDumpedFile, const wchar_t* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart,  bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback)
 {
     HANDLE FileHandle;
     DWORD FileSize;
@@ -612,7 +612,7 @@ __declspec(dllexport) long TITCALL ImporterAutoFixIATExW(DWORD ProcessId, wchar_
     {
         HANDLE hProcess = EngineOpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, ProcessId);
 
-        if(!DumpProcessW(hProcess, (LPVOID)ImageBase, szDumpedFile, EntryPointAddress))
+        if(!DumpProcessW(hProcess, (LPVOID)ImageBase, DumpFileName, EntryPointAddress))
         {
             return(NULL);   // Critical error! *just to be safe, but it should never happen!
         }

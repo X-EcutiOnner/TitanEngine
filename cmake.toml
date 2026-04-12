@@ -17,6 +17,7 @@ sources = ["scylla_wrapper/*.cpp"]
 headers = ["scylla_wrapper/*.h", "scylla_wrapper/include/*.h"]
 link-libraries = ["::distorm"]
 include-directories = ["scylla_wrapper/include"]
+compile-features = ["cxx_std_11"]
 
 [target.TitanEngine]
 type = "shared"

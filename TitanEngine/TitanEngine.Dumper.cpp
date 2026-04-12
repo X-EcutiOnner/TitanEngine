@@ -408,7 +408,7 @@ __declspec(dllexport) bool TITCALL DumpRegionsW(HANDLE hProcess, wchar_t* szDump
             return false;
         }
 
-        while(VirtualQueryEx(hProcess, (LPVOID)DumpAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION) != NULL)
+        while(VirtualQueryEx(hProcess, (LPVOID)DumpAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION)) != NULL)
         {
             AddressIsModuleBase = false;
             for(i = 0; i < (int)(cbNeeded / sizeof(HMODULE)); i++)

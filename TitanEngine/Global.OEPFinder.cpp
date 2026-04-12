@@ -23,7 +23,7 @@ void GenericOEPVirtualProtectHit()
         BreakPointDetail curDetail = BreakPointBuffer.at(i);
         if(curDetail.BreakPointType == UE_MEMORY && curDetail.BreakPointActive == UE_BPXACTIVE)
         {
-            VirtualQueryEx(dbgProcessInformation.hProcess, (LPVOID)curDetail.BreakPointAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+            VirtualQueryEx(dbgProcessInformation.hProcess, (LPVOID)curDetail.BreakPointAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
             OldProtect = MemInfo.Protect;
             if(!(OldProtect & PAGE_GUARD))
             {
@@ -40,14 +40,14 @@ void GenericOEPTraceHit()
 
     char* szInstructionType;
     typedef void(TITCALL * fEPCallBack)();
-    fEPCallBack myEPCallBack = (fEPCallBack)glbEntryTracerData.EPCallBack;
+    fEPCallBack myEPCallBack = ObjectPointerToCallback<fEPCallBack>(glbEntryTracerData.EPCallBack);
     LPDEBUG_EVENT myDbgEvent = (LPDEBUG_EVENT)GetDebugData();
 
     glbEntryTracerData.MemoryAccessedFrom = (ULONG_PTR)GetContextData(UE_CIP);
     glbEntryTracerData.MemoryAccessed = myDbgEvent->u.Exception.ExceptionRecord.ExceptionInformation[1];
     glbEntryTracerData.AccessType = myDbgEvent->u.Exception.ExceptionRecord.ExceptionInformation[0];
     szInstructionType = (char*)DisassembleEx(dbgProcessInformation.hProcess, (void*)glbEntryTracerData.MemoryAccessedFrom, true);
-    StepInto(&GenericOEPTraceHited);
+    StepInto(CallbackToObjectPointer(&GenericOEPTraceHited));
 }
 
 void GenericOEPTraceHited()
@@ -60,7 +60,7 @@ void GenericOEPTraceHited()
     ULONG_PTR NumberOfBytesRW;
     LPDEBUG_EVENT myDbgEvent = (LPDEBUG_EVENT)GetDebugData();
     typedef void(TITCALL * fEPCallBack)();
-    fEPCallBack myEPCallBack = (fEPCallBack)glbEntryTracerData.EPCallBack;
+    fEPCallBack myEPCallBack = ObjectPointerToCallback<fEPCallBack>(glbEntryTracerData.EPCallBack);
     PMEMORY_COMPARE_HANDLER myCmpHandler;
     ULONG_PTR memBpxAddress;
     ULONG_PTR memBpxSize;
@@ -134,12 +134,12 @@ void GenericOEPTraceHited()
                     }
                     else
                     {
-                        SetMemoryBPXEx((ULONG_PTR)(glbEntryTracerData.SectionData[i].SectionVirtualOffset + glbEntryTracerData.LoadedImageBase), glbEntryTracerData.SectionData[i].SectionVirtualSize, UE_MEMORY, false, &GenericOEPTraceHit);
+                        SetMemoryBPXEx((ULONG_PTR)(glbEntryTracerData.SectionData[i].SectionVirtualOffset + glbEntryTracerData.LoadedImageBase), glbEntryTracerData.SectionData[i].SectionVirtualSize, UE_MEMORY, false, CallbackToObjectPointer(&GenericOEPTraceHit));
                     }
                 }
                 else
                 {
-                    SetMemoryBPXEx((ULONG_PTR)(glbEntryTracerData.SectionData[i].SectionVirtualOffset + glbEntryTracerData.LoadedImageBase), glbEntryTracerData.SectionData[i].SectionVirtualSize, UE_MEMORY, false, &GenericOEPTraceHit);
+                    SetMemoryBPXEx((ULONG_PTR)(glbEntryTracerData.SectionData[i].SectionVirtualOffset + glbEntryTracerData.LoadedImageBase), glbEntryTracerData.SectionData[i].SectionVirtualSize, UE_MEMORY, false, CallbackToObjectPointer(&GenericOEPTraceHit));
                 }
             }
         }
@@ -162,7 +162,7 @@ void GenericOEPLibraryDetailsHit()
     int inReg = UE_RAX;
 #endif
 
-    if(GetModuleBaseNameA(dbgProcessInformation.hProcess, (HMODULE)GetContextData(inReg), szModuleName, sizeof szModuleName) > NULL)
+    if(GetModuleBaseNameA(dbgProcessInformation.hProcess, (HMODULE)GetContextData(inReg), szModuleName, sizeof(szModuleName)) > NULL)
     {
         if(lstrcmpiA(szModuleName, "kernel32.dll") != NULL)
         {
@@ -178,7 +178,7 @@ void GenericOEPLibraryDetailsHit()
             {
                 if(glbEntryTracerData.SectionData[i].SectionAttributes & IMAGE_SCN_MEM_EXECUTE || glbEntryTracerData.SectionData[i].SectionAttributes & IMAGE_SCN_CNT_CODE)
                 {
-                    SetMemoryBPXEx((ULONG_PTR)(glbEntryTracerData.SectionData[i].SectionVirtualOffset + glbEntryTracerData.LoadedImageBase), glbEntryTracerData.SectionData[i].SectionVirtualSize, UE_MEMORY, false, &GenericOEPTraceHit);
+                    SetMemoryBPXEx((ULONG_PTR)(glbEntryTracerData.SectionData[i].SectionVirtualOffset + glbEntryTracerData.LoadedImageBase), glbEntryTracerData.SectionData[i].SectionVirtualSize, UE_MEMORY, false, CallbackToObjectPointer(&GenericOEPTraceHit));
                     memBreakPointSet = true;
                 }
             }
@@ -202,7 +202,7 @@ void GenericOEPTraceInit()
     void* lpHashBuffer;
     ULONG_PTR NumberOfBytesRW;
     typedef void(TITCALL * fInitCallBack)();
-    fInitCallBack myInitCallBack = (fInitCallBack)glbEntryTracerData.InitCallBack;
+    fInitCallBack myInitCallBack = ObjectPointerToCallback<fInitCallBack>(glbEntryTracerData.InitCallBack);
 
     if(glbEntryTracerData.FileIsDLL)
     {
@@ -223,9 +223,9 @@ void GenericOEPTraceInit()
             }
         }
     }
-    SetAPIBreakPoint("kernel32.dll", "VirtualProtect", UE_BREAKPOINT, UE_APIEND, &GenericOEPVirtualProtectHit);
-    SetAPIBreakPoint("kernel32.dll", "GetModuleHandleW", UE_BREAKPOINT, UE_APIEND, &GenericOEPLibraryDetailsHit);
-    SetAPIBreakPoint("kernel32.dll", "LoadLibraryExW", UE_BREAKPOINT, UE_APIEND, &GenericOEPLibraryDetailsHit);
+    SetAPIBreakPoint("kernel32.dll", "VirtualProtect", UE_BREAKPOINT, UE_APIEND, CallbackToObjectPointer(&GenericOEPVirtualProtectHit));
+    SetAPIBreakPoint("kernel32.dll", "GetModuleHandleW", UE_BREAKPOINT, UE_APIEND, CallbackToObjectPointer(&GenericOEPLibraryDetailsHit));
+    SetAPIBreakPoint("kernel32.dll", "LoadLibraryExW", UE_BREAKPOINT, UE_APIEND, CallbackToObjectPointer(&GenericOEPLibraryDetailsHit));
     if(glbEntryTracerData.InitCallBack != NULL)
     {
         __try
@@ -257,7 +257,7 @@ bool GenericOEPFileInitW(wchar_t* szFileName, LPVOID TraceInitCallBack, LPVOID C
     {
         if(GetPE32DataFromMappedFileEx(FileMapVA, &PEStruct))
         {
-            RtlZeroMemory(&glbEntryTracerData, sizeof GenericOEPTracerData);
+            RtlZeroMemory(&glbEntryTracerData, sizeof(GenericOEPTracerData));
             glbEntryTracerData.OriginalImageBase = PEStruct.ImageBase;
             glbEntryTracerData.OriginalEntryPoint = PEStruct.OriginalEntryPoint;
             glbEntryTracerData.SizeOfImage = PEStruct.NtSizeOfImage;

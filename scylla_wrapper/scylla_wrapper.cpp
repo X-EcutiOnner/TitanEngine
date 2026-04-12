@@ -405,7 +405,7 @@ void scylla_enumImportTree(LPVOID enumCallback)
 
         //module
         myImportEnumData.NewDll = true;
-        myImportEnumData.NumberOfImports = moduleThunk.thunkList.size();
+        myImportEnumData.NumberOfImports = (int)moduleThunk.thunkList.size();
         StringConversion::ToASCII(moduleThunk.moduleName, myImportEnumData.DLLName, sizeof(char)*MAX_PATH);
         myImportEnumData.BaseImportThunk = moduleThunk.firstThunk;
 

@@ -52,7 +52,7 @@ public:
     int getIATSectionSize(std::map<DWORD_PTR, ImportModuleThunk> & moduleList)
     {
         this->calculateImportSizes(moduleList);
-        return this->sizeOfImportSection;
+        return (int)this->sizeOfImportSection;
     } ;
 
     IATReferenceScan* iatReferenceScan;

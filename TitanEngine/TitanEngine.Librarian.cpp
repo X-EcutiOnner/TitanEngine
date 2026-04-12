@@ -42,13 +42,13 @@ __declspec(dllexport) void* TITCALL LibrarianGetLibraryInfo(char* szLibraryName)
     LibInfo = (PLIBRARY_ITEM_DATAW)LibrarianGetLibraryInfoW(uniLibraryName);
     if(LibInfo)
     {
-        RtlZeroMemory(&LibraryInfoData, sizeof LIBRARY_ITEM_DATA);
+        RtlZeroMemory(&LibraryInfoData, sizeof(LIBRARY_ITEM_DATA));
         LibraryInfoData.hFile = LibInfo->hFile;
         LibraryInfoData.BaseOfDll = LibInfo->BaseOfDll;
         LibraryInfoData.hFileMapping = LibInfo->hFileMapping;
         LibraryInfoData.hFileMappingView = LibInfo->hFileMappingView;
-        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryName, -1, &LibraryInfoData.szLibraryName[0], sizeof LibraryInfoData.szLibraryName, NULL, NULL);
-        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryPath, -1, &LibraryInfoData.szLibraryPath[0], sizeof LibraryInfoData.szLibraryPath, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryName, -1, &LibraryInfoData.szLibraryName[0], sizeof(LibraryInfoData).szLibraryName, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryPath, -1, &LibraryInfoData.szLibraryPath[0], sizeof(LibraryInfoData).szLibraryPath, NULL, NULL);
 
         return((void*)&LibraryInfoData);
     }
@@ -79,13 +79,13 @@ __declspec(dllexport) void* TITCALL LibrarianGetLibraryInfoEx(void* BaseOfDll)
     LibInfo = (PLIBRARY_ITEM_DATAW)LibrarianGetLibraryInfoExW(BaseOfDll);
     if(LibInfo)
     {
-        RtlZeroMemory(&LibraryInfoData, sizeof LIBRARY_ITEM_DATA);
+        RtlZeroMemory(&LibraryInfoData, sizeof(LIBRARY_ITEM_DATA));
         LibraryInfoData.hFile = LibInfo->hFile;
         LibraryInfoData.BaseOfDll = LibInfo->BaseOfDll;
         LibraryInfoData.hFileMapping = LibInfo->hFileMapping;
         LibraryInfoData.hFileMappingView = LibInfo->hFileMappingView;
-        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryName, -1, &LibraryInfoData.szLibraryName[0], sizeof LibraryInfoData.szLibraryName, NULL, NULL);
-        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryPath, -1, &LibraryInfoData.szLibraryPath[0], sizeof LibraryInfoData.szLibraryPath, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryName, -1, &LibraryInfoData.szLibraryName[0], sizeof(LibraryInfoData).szLibraryName, NULL, NULL);
+        WideCharToMultiByte(CP_ACP, NULL, LibInfo->szLibraryPath, -1, &LibraryInfoData.szLibraryPath[0], sizeof(LibraryInfoData).szLibraryPath, NULL, NULL);
 
         return (void*)&LibraryInfoData;
     }

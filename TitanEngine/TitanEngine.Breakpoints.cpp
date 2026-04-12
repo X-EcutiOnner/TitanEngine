@@ -72,7 +72,7 @@ __declspec(dllexport) bool TITCALL EnableBPX(ULONG_PTR bpxAddress)
     {
         if(BreakPointBuffer.at(i).BreakPointAddress == bpxAddress)
         {
-            VirtualQueryEx(dbgProcessInformation.hProcess, (LPVOID)bpxAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+            VirtualQueryEx(dbgProcessInformation.hProcess, (LPVOID)bpxAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
             OldProtect = MemInfo.Protect;
             VirtualProtectEx(dbgProcessInformation.hProcess, (LPVOID)bpxAddress, BreakPointBuffer.at(i).BreakPointSize, PAGE_EXECUTE_READWRITE, &OldProtect);
             if(BreakPointBuffer.at(i).BreakPointActive == UE_BPXINACTIVE && (BreakPointBuffer.at(i).BreakPointType == UE_BREAKPOINT || BreakPointBuffer.at(i).BreakPointType == UE_SINGLESHOOT))
@@ -144,7 +144,7 @@ __declspec(dllexport) bool TITCALL DisableBPX(ULONG_PTR bpxAddress)
     {
         if(BreakPointBuffer.at(i).BreakPointAddress == bpxAddress)
         {
-            VirtualQueryEx(dbgProcessInformation.hProcess, (LPVOID)bpxAddress, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+            VirtualQueryEx(dbgProcessInformation.hProcess, (LPVOID)bpxAddress, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
             OldProtect = MemInfo.Protect;
             VirtualProtectEx(dbgProcessInformation.hProcess, (LPVOID)bpxAddress, BreakPointBuffer.at(i).BreakPointSize, PAGE_EXECUTE_READWRITE, &OldProtect);
             if(BreakPointBuffer.at(i).BreakPointActive == UE_BPXACTIVE && (BreakPointBuffer.at(i).BreakPointType == UE_BREAKPOINT || BreakPointBuffer.at(i).BreakPointType == UE_SINGLESHOOT))

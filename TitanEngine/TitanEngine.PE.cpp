@@ -60,7 +60,7 @@ __declspec(dllexport) bool TITCALL PastePEHeaderW(HANDLE hProcess, LPVOID ImageB
             {
                 PEHeader32 = (PIMAGE_NT_HEADERS32)((ULONG_PTR)DOSHeader + DOSHeader->e_lfanew);
                 PEHeader64 = (PIMAGE_NT_HEADERS64)((ULONG_PTR)DOSHeader + DOSHeader->e_lfanew);
-                CalculatedHeaderSize = DOSHeader->e_lfanew + sizeof IMAGE_DOS_HEADER + sizeof IMAGE_NT_HEADERS64;
+                CalculatedHeaderSize = DOSHeader->e_lfanew + sizeof(IMAGE_DOS_HEADER) + sizeof(IMAGE_NT_HEADERS64);
                 if(CalculatedHeaderSize > 0x1000)
                 {
                     SetFilePointer(hFile, NULL, NULL, FILE_BEGIN);
@@ -73,7 +73,7 @@ __declspec(dllexport) bool TITCALL PastePEHeaderW(HANDLE hProcess, LPVOID ImageB
                 }
                 if(PEHeader32->OptionalHeader.Magic == 0x10B)
                 {
-                    if(ReadProcessMemory(hProcess, (LPVOID)((ULONG_PTR)ImageBase + DOSHeader->e_lfanew), &RemotePEHeader32, sizeof IMAGE_NT_HEADERS32, &ueNumberOfBytesRead))
+                    if(ReadProcessMemory(hProcess, (LPVOID)((ULONG_PTR)ImageBase + DOSHeader->e_lfanew), &RemotePEHeader32, sizeof(IMAGE_NT_HEADERS32), &ueNumberOfBytesRead))
                     {
                         PEHeaderSize = PEHeader32->FileHeader.NumberOfSections * IMAGE_SIZEOF_SECTION_HEADER + PEHeader32->FileHeader.SizeOfOptionalHeader + sizeof(IMAGE_FILE_HEADER) + 4;
                         FileIs64 = false;
@@ -81,7 +81,7 @@ __declspec(dllexport) bool TITCALL PastePEHeaderW(HANDLE hProcess, LPVOID ImageB
                 }
                 else if(PEHeader32->OptionalHeader.Magic == 0x20B)
                 {
-                    if(ReadProcessMemory(hProcess, (LPVOID)((ULONG_PTR)ImageBase + DOSHeader->e_lfanew), &RemotePEHeader64, sizeof IMAGE_NT_HEADERS32, &ueNumberOfBytesRead))
+                    if(ReadProcessMemory(hProcess, (LPVOID)((ULONG_PTR)ImageBase + DOSHeader->e_lfanew), &RemotePEHeader64, sizeof(IMAGE_NT_HEADERS32), &ueNumberOfBytesRead))
                     {
                         PEHeaderSize = PEHeader64->FileHeader.NumberOfSections * IMAGE_SIZEOF_SECTION_HEADER + PEHeader64->FileHeader.SizeOfOptionalHeader + sizeof(IMAGE_FILE_HEADER) + 4;
                         FileIs64 = true;

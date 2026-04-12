@@ -89,7 +89,11 @@ __declspec(dllexport) bool TITCALL StaticFileUnloadW(wchar_t* szFileName, bool C
 
     if(FileHandle != NULL && FileMap != NULL)
     {
-        UnMapFileEx(FileHandle, LoadedSize, FileMap, FileMapVA);
+        // HACK: compatibility with x64dbg
+        if(FileHandle != (HANDLE)-1)
+        {
+            UnMapFileEx(FileHandle, LoadedSize, FileMap, FileMapVA);
+        }
 
         return true;
     }
@@ -882,7 +886,7 @@ __declspec(dllexport) bool TITCALL StaticHashMemory(void* MemoryToHash, DWORD Si
         }
         else
         {
-            RtlMoveMemory(HashDigest, &crc32, sizeof crc32);
+            RtlMoveMemory(HashDigest, &crc32, sizeof(crc32));
         }
 
         return true;
@@ -1094,7 +1098,7 @@ __declspec(dllexport) bool TITCALL StaticHashFileW(wchar_t* szFileName, char* Ha
         }
         else
         {
-            RtlMoveMemory(HashDigest, &crc32, sizeof crc32);
+            RtlMoveMemory(HashDigest, &crc32, sizeof(crc32));
         }
 
         CloseHandle(hFile);

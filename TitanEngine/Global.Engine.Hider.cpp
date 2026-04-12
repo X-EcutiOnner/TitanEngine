@@ -12,10 +12,18 @@ static bool isAtleastVista()
     static bool isSet = false;
     if(isSet)
         return isAtleastVista;
-    OSVERSIONINFO versionInfo = {0};
-    versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&versionInfo);
-    isAtleastVista = versionInfo.dwMajorVersion >= 6;
+    RTL_OSVERSIONINFOW versionInfo = {0};
+    versionInfo.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
+    typedef NTSTATUS (WINAPI* tRtlGetVersion)(PRTL_OSVERSIONINFOW);
+    tRtlGetVersion pRtlGetVersion = (tRtlGetVersion)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetVersion");
+    if(!pRtlGetVersion || !NT_SUCCESS(pRtlGetVersion(&versionInfo)))
+    {
+        isAtleastVista = false;
+    }
+    else
+    {
+        isAtleastVista = versionInfo.dwMajorVersion >= 6;
+    }
     isSet = true;
     return isAtleastVista;
 }

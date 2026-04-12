@@ -185,7 +185,7 @@ bool ImportRebuilder::buildNewMappedImportTable(std::map<DWORD_PTR, ImportModule
     }
 
     //setFlagToIATSection
-    headerOffset += sizeof(IMAGE_SECTION_HEADER) * importSectionIndex;
+    headerOffset += (DWORD)(sizeof(IMAGE_SECTION_HEADER) * importSectionIndex);
 
     PIMAGE_SECTION_HEADER pImportSection = (PIMAGE_SECTION_HEADER)(fileMapVA + headerOffset);
     pImportSection->Characteristics |= IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE;

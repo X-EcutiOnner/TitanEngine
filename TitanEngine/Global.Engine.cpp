@@ -145,7 +145,7 @@ wchar_t* EngineExtractFileNameW(wchar_t* szFileName)
     int x = 0;
 
     i = lstrlenW(szFileName);
-    RtlZeroMemory(&engineExtractedFileNameW, sizeof engineExtractedFileNameW);
+    RtlZeroMemory(&engineExtractedFileNameW, sizeof(engineExtractedFileNameW));
     while(i > 0 && szFileName[i] != 0x5C)
     {
         i--;
@@ -175,13 +175,13 @@ bool EngineIsPointedMemoryString(ULONG_PTR PossibleStringPtr)
     DWORD MaxDisassmSize = 512;
     BYTE TestChar;
 
-    VirtualQueryEx(GetCurrentProcess(), (LPVOID)PossibleStringPtr, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+    VirtualQueryEx(GetCurrentProcess(), (LPVOID)PossibleStringPtr, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
     if(MemInfo.State == MEM_COMMIT)
     {
         if((ULONG_PTR)MemInfo.BaseAddress + (ULONG_PTR)MemInfo.RegionSize - PossibleStringPtr <= 512)
         {
             MaxDisassmSize = (DWORD)((ULONG_PTR)MemInfo.BaseAddress + (ULONG_PTR)MemInfo.RegionSize - PossibleStringPtr - 1);
-            VirtualQueryEx(GetCurrentProcess(), (LPVOID)(PossibleStringPtr + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+            VirtualQueryEx(GetCurrentProcess(), (LPVOID)(PossibleStringPtr + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
             if(MemInfo.State != MEM_COMMIT)
             {
                 i = MaxDisassmSize;
@@ -228,13 +228,13 @@ int EnginePointedMemoryStringLength(ULONG_PTR PossibleStringPtr)
     DWORD MaxDisassmSize = 512;
     BYTE TestChar;
 
-    VirtualQueryEx(GetCurrentProcess(), (LPVOID)PossibleStringPtr, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+    VirtualQueryEx(GetCurrentProcess(), (LPVOID)PossibleStringPtr, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
     if(MemInfo.State == MEM_COMMIT)
     {
         if((ULONG_PTR)MemInfo.BaseAddress + (ULONG_PTR)MemInfo.RegionSize - PossibleStringPtr <= 512)
         {
             MaxDisassmSize = (DWORD)((ULONG_PTR)MemInfo.BaseAddress + (ULONG_PTR)MemInfo.RegionSize - PossibleStringPtr - 1);
-            VirtualQueryEx(GetCurrentProcess(), (LPVOID)(PossibleStringPtr + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+            VirtualQueryEx(GetCurrentProcess(), (LPVOID)(PossibleStringPtr + (ULONG_PTR)MemInfo.RegionSize), &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
             if(MemInfo.State != MEM_COMMIT)
             {
                 i = MaxDisassmSize;
@@ -403,7 +403,7 @@ bool EngineGrabDataFromMappedFile(HANDLE hFile, ULONG_PTR FileMapVA, ULONG_PTR F
     return !!ReadFile(hFile, CopyToMemory, CopySize, &rfNumberOfBytesRead, NULL);
 }
 
-bool EngineExtractResource(char* szResourceName, wchar_t* szExtractedFileName)
+bool EngineExtractResource(const char* szResourceName, wchar_t* szExtractedFileName)
 {
 
     HRSRC hResource;
@@ -727,7 +727,7 @@ bool EngineIsValidReadPtrEx(LPVOID DataPointer, DWORD DataSize)
 
     while(DataSize > NULL)
     {
-        VirtualQuery(DataPointer, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+        VirtualQuery(DataPointer, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
         if(MemInfo.AllocationProtect == MEM_FREE || MemInfo.AllocationProtect == MEM_PRIVATE)
         {
             return false;
@@ -814,7 +814,7 @@ bool EngineValidateHeader(ULONG_PTR FileMapVA, HANDLE hFileProc, LPVOID ImageBas
     }
     else
     {
-        RtlZeroMemory(&ModuleInfo, sizeof MODULEINFO);
+        RtlZeroMemory(&ModuleInfo, sizeof(MODULEINFO));
         GetModuleInformation(hFileProc, (HMODULE)ImageBase, &ModuleInfo, sizeof(MODULEINFO));
         PESize = ModuleInfo.SizeOfImage;
         __try
@@ -1404,9 +1404,9 @@ ULONG_PTR EngineGlobalAPIHandler(HANDLE handleProcess, ULONG_PTR EnumedModulesBa
             {
                 if(szAPIName == NULL && ReturnType == UE_OPTION_IMPORTER_REALIGN_APIADDRESS)
                 {
-                    RtlZeroMemory(&RemoteModuleInfo, sizeof MODULEINFO);
-                    //GetModuleInformation(GetCurrentProcess(), (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof MODULEINFO);
-                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof MODULEINFO);
+                    RtlZeroMemory(&RemoteModuleInfo, sizeof(MODULEINFO));
+                    //GetModuleInformation(GetCurrentProcess(), (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof(MODULEINFO));
+                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof(MODULEINFO));
                     if(APIAddress >= LoadedModules[i][1] && APIAddress <= LoadedModules[i][1] + RemoteModuleInfo.SizeOfImage)
                     {
                         GetModuleBaseNameA(hProcess, (HMODULE)LoadedModules[i][0], (LPSTR)engineFoundDLLName, 512);
@@ -1418,8 +1418,8 @@ ULONG_PTR EngineGlobalAPIHandler(HANDLE handleProcess, ULONG_PTR EnumedModulesBa
                 }
                 else if(szAPIName == NULL && ReturnType == UE_OPTION_IMPORTER_REALIGN_LOCAL_APIADDRESS)
                 {
-                    RtlZeroMemory(&RemoteModuleInfo, sizeof MODULEINFO);
-                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof MODULEINFO);
+                    RtlZeroMemory(&RemoteModuleInfo, sizeof(MODULEINFO));
+                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof(MODULEINFO));
                     if(APIAddress >= LoadedModules[i][0] && APIAddress <= LoadedModules[i][0] + RemoteModuleInfo.SizeOfImage)
                     {
                         GetModuleBaseNameA(hProcess, (HMODULE)LoadedModules[i][0], (LPSTR)engineFoundDLLName, 512);
@@ -1441,8 +1441,8 @@ ULONG_PTR EngineGlobalAPIHandler(HANDLE handleProcess, ULONG_PTR EnumedModulesBa
                 }
                 else if(ReturnType == UE_OPTION_IMPORTER_RETURN_NEAREST_APIADDRESS || ReturnType == UE_OPTION_IMPORTER_RETURN_NEAREST_APINAME)
                 {
-                    RtlZeroMemory(&RemoteModuleInfo, sizeof MODULEINFO);
-                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof MODULEINFO);
+                    RtlZeroMemory(&RemoteModuleInfo, sizeof(MODULEINFO));
+                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof(MODULEINFO));
                     if(APIAddress >= LoadedModules[i][0] && APIAddress <= LoadedModules[i][0] + RemoteModuleInfo.SizeOfImage)
                     {
                         DOSHeader = (PIMAGE_DOS_HEADER)LoadedModules[i][1];
@@ -1520,10 +1520,10 @@ ULONG_PTR EngineGlobalAPIHandler(HANDLE handleProcess, ULONG_PTR EnumedModulesBa
 
                 if((ReturnType == UE_OPTION_IMPORTER_RETURN_API_ORDINAL_NUMBER || (ReturnType > UE_OPTION_IMPORTER_REALIGN_APIADDRESS && ReturnType < UE_OPTION_IMPORTER_RETURN_FORWARDER_DLLNAME)) && ReturnType != UE_OPTION_IMPORTER_RETURN_DLLBASE && LoadedModules[i][1] != NULL)
                 {
-                    RtlZeroMemory(&RemoteModuleInfo, sizeof MODULEINFO);
+                    RtlZeroMemory(&RemoteModuleInfo, sizeof(MODULEINFO));
                     DOSHeader = (PIMAGE_DOS_HEADER)LoadedModules[i][1];
-                    //GetModuleInformation(GetCurrentProcess(), (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof MODULEINFO);
-                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof MODULEINFO);
+                    //GetModuleInformation(GetCurrentProcess(), (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof(MODULEINFO));
+                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof(MODULEINFO));
                     if(APIAddress >= LoadedModules[i][0] && APIAddress <= LoadedModules[i][0] + RemoteModuleInfo.SizeOfImage)
                     {
                         if(ValidateHeader || EngineValidateHeader((ULONG_PTR)LoadedModules[i][1], GetCurrentProcess(), RemoteModuleInfo.lpBaseOfDll, DOSHeader, false))
@@ -1637,9 +1637,9 @@ ULONG_PTR EngineGlobalAPIHandler(HANDLE handleProcess, ULONG_PTR EnumedModulesBa
                 if(FileMapVA != NULL)
                 {
                     DOSHeader = (PIMAGE_DOS_HEADER)FileMapVA;
-                    RtlZeroMemory(&RemoteModuleInfo, sizeof MODULEINFO);
-                    //GetModuleInformation(GetCurrentProcess(), (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof MODULEINFO);
-                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof MODULEINFO);
+                    RtlZeroMemory(&RemoteModuleInfo, sizeof(MODULEINFO));
+                    //GetModuleInformation(GetCurrentProcess(), (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof(MODULEINFO));
+                    GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][0], &RemoteModuleInfo, sizeof(MODULEINFO));
                     if(ValidateHeader || EngineValidateHeader((ULONG_PTR)LoadedModules[i][1], GetCurrentProcess(), RemoteModuleInfo.lpBaseOfDll, DOSHeader, false))
                     {
                         __try

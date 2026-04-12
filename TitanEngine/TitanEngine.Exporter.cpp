@@ -30,7 +30,7 @@ __declspec(dllexport) void TITCALL ExporterCleanup()
         expOrdinals[i] = 0;
     }
     //RtlZeroMemory(&szExportFileName, 512);
-    RtlZeroMemory(&expExportData, sizeof IMAGE_EXPORT_DIRECTORY);
+    RtlZeroMemory(&expExportData, sizeof(IMAGE_EXPORT_DIRECTORY));
     VirtualFree(expTableData, NULL, MEM_RELEASE);
     expExportNumber = NULL;
     expTableData = NULL;
@@ -139,7 +139,7 @@ __declspec(dllexport) long TITCALL ExporterEstimatedSize()
     DWORD EstimatedSize = NULL;
 
     EstimatedSize = (DWORD)((ULONG_PTR)expTableDataCWP - (ULONG_PTR)expTableData);
-    EstimatedSize = EstimatedSize + (expExportNumber * 12) + sizeof IMAGE_EXPORT_DIRECTORY;
+    EstimatedSize = EstimatedSize + (expExportNumber * 12) + sizeof(IMAGE_EXPORT_DIRECTORY);
     return(EstimatedSize);
 }
 __declspec(dllexport) bool TITCALL ExporterBuildExportTable(ULONG_PTR StorePlace, ULONG_PTR FileMapVA)
@@ -162,7 +162,7 @@ __declspec(dllexport) bool TITCALL ExporterBuildExportTable(ULONG_PTR StorePlace
     if(expTableDataCWP != NULL)
     {
         expBuildExportData = expBuildExportDyn.Allocate(ExporterEstimatedSize());
-        expBuildExportDataCWP = (LPVOID)((ULONG_PTR)expBuildExportData + sizeof IMAGE_EXPORT_DIRECTORY);
+        expBuildExportDataCWP = (LPVOID)((ULONG_PTR)expBuildExportData + sizeof(IMAGE_EXPORT_DIRECTORY));
 
         expExportData.NumberOfNames = expExportNumber;
         expExportData.NumberOfFunctions = expExportNumber;
@@ -204,7 +204,7 @@ __declspec(dllexport) bool TITCALL ExporterBuildExportTable(ULONG_PTR StorePlace
         expExportData.AddressOfNameOrdinals = StorePlaceRVA + (DWORD)((ULONG_PTR)expBuildExportDataCWP - (ULONG_PTR)expBuildExportData);
         RtlMoveMemory(expBuildExportDataCWP, &expOrdinals, 2 * expExportNumber);
         expBuildExportDataCWP = (LPVOID)((ULONG_PTR)expBuildExportDataCWP + 2 * expExportNumber);
-        RtlMoveMemory(expBuildExportData, &expExportData, sizeof IMAGE_EXPORT_DIRECTORY);
+        RtlMoveMemory(expBuildExportData, &expExportData, sizeof(IMAGE_EXPORT_DIRECTORY));
 
         RtlMoveMemory((LPVOID)StorePlace, expBuildExportData, (DWORD)((ULONG_PTR)expBuildExportDataCWP - (ULONG_PTR)expBuildExportData));
 
@@ -259,7 +259,7 @@ __declspec(dllexport) bool TITCALL ExporterBuildExportTableEx(char* szExportFile
         return false;
     }
 }
-__declspec(dllexport) bool TITCALL ExporterBuildExportTableExW(wchar_t* szExportFileName, char* szSectionName)
+__declspec(dllexport) bool TITCALL ExporterBuildExportTableExW(wchar_t* szExportFileName, const char* szSectionName)
 {
 
     HANDLE FileHandle;

@@ -160,17 +160,17 @@ __declspec(dllexport) bool TITCALL ResortFileSectionsW(wchar_t* szFileName)
     LPVOID sortedFileName;
     DynBuf sortedFileNameBuf;
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_ALL, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))
@@ -370,17 +370,17 @@ __declspec(dllexport) bool TITCALL MakeAllSectionsRWEW(wchar_t* szFileName)
     HANDLE FileMap;
     ULONG_PTR FileMapVA;
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_ALL, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))
@@ -509,7 +509,7 @@ __declspec(dllexport) long TITCALL AddNewSectionEx(char* szFileName, char* szSec
     }
 }
 
-__declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, char* szSectionName, DWORD SectionSize, DWORD SectionAttributes, LPVOID SectionContent, DWORD ContentSize)
+__declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, const char* szSectionName, DWORD SectionSize, DWORD SectionAttributes, LPVOID SectionContent, DWORD ContentSize)
 {
     bool OverlayHasBeenRemoved = false;
     wchar_t szBackupOverlayFile[MAX_PATH] = {};
@@ -544,18 +544,18 @@ __declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, char* s
         SectionSize = ContentSize;
     }
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
         if(FindOverlayW(szBackupFile, NULL, NULL))
         {
-            if(!FillGarbageItem(szBackupItem, NULL, &szBackupOverlayFile, sizeof szBackupItem))
+            if(!FillGarbageItem(szBackupItem, NULL, &szBackupOverlayFile, sizeof(szBackupItem)))
             {
-                RtlZeroMemory(&szBackupOverlayFile, sizeof szBackupOverlayFile);
+                RtlZeroMemory(&szBackupOverlayFile, sizeof(szBackupOverlayFile));
             }
             else
             {
@@ -568,7 +568,7 @@ __declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, char* s
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_READ, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))
@@ -608,7 +608,7 @@ __declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, char* s
                     {
                         SectionSize = alignedSectionSize;
                     }
-                    SpaceLeft = PESections->PointerToRawData - (SectionNumber * IMAGE_SIZEOF_SECTION_HEADER) - DOSHeader->e_lfanew - sizeof IMAGE_NT_HEADERS32;
+                    SpaceLeft = PESections->PointerToRawData - (SectionNumber * IMAGE_SIZEOF_SECTION_HEADER) - DOSHeader->e_lfanew - sizeof(IMAGE_NT_HEADERS32);
                     PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + (SectionNumber - 1) * IMAGE_SIZEOF_SECTION_HEADER);
                     LastSectionRawSize = (PESections->SizeOfRawData / PEHeader32->OptionalHeader.FileAlignment) * PEHeader32->OptionalHeader.FileAlignment;
                     if(LastSectionRawSize < PESections->SizeOfRawData)
@@ -641,7 +641,7 @@ __declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, char* s
                     {
                         SectionSize = alignedSectionSize;
                     }
-                    SpaceLeft = PESections->PointerToRawData - (SectionNumber * IMAGE_SIZEOF_SECTION_HEADER) - DOSHeader->e_lfanew - sizeof IMAGE_NT_HEADERS64;
+                    SpaceLeft = PESections->PointerToRawData - (SectionNumber * IMAGE_SIZEOF_SECTION_HEADER) - DOSHeader->e_lfanew - sizeof(IMAGE_NT_HEADERS64);
                     PESections = (PIMAGE_SECTION_HEADER)((ULONG_PTR)PESections + (SectionNumber - 1) * IMAGE_SIZEOF_SECTION_HEADER);
                     LastSectionRawSize = (PESections->SizeOfRawData / PEHeader64->OptionalHeader.FileAlignment) * PEHeader64->OptionalHeader.FileAlignment;
                     if(LastSectionRawSize < PESections->SizeOfRawData)
@@ -746,7 +746,7 @@ __declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, char* s
                         {
                             if(CopyFileW(szBackupFile, szFileName, false))
                             {
-                                if(OverlayHasBeenRemoved && !AddOverlayW(szFileName, szBackupOverlayFile))
+                                if(OverlayHasBeenRemoved && !AddOverlayW((wchar_t*)szFileName, szBackupOverlayFile))
                                 {
                                     RemoveGarbageItem(szBackupItem, true);
                                     return(0);
@@ -828,7 +828,7 @@ __declspec(dllexport) long TITCALL AddNewSectionExW(wchar_t* szFileName, char* s
                         {
                             if(CopyFileW(szBackupFile, szFileName, false))
                             {
-                                if(OverlayHasBeenRemoved && !AddOverlayW(szFileName, szBackupOverlayFile))
+                                if(OverlayHasBeenRemoved && !AddOverlayW((wchar_t*)szFileName, szBackupOverlayFile))
                                 {
                                     RemoveGarbageItem(szBackupItem, true);
                                     return(0);
@@ -872,7 +872,7 @@ __declspec(dllexport) long TITCALL AddNewSection(char* szFileName, char* szSecti
     return AddNewSectionEx(szFileName, szSectionName, SectionSize, NULL, NULL, NULL);
 }
 
-__declspec(dllexport) long TITCALL AddNewSectionW(wchar_t* szFileName, char* szSectionName, DWORD SectionSize)
+__declspec(dllexport) long TITCALL AddNewSectionW(wchar_t* szFileName, const char* szSectionName, DWORD SectionSize)
 {
     return AddNewSectionExW(szFileName, szSectionName, SectionSize, NULL, NULL, NULL);
 }
@@ -908,17 +908,17 @@ __declspec(dllexport) bool TITCALL ResizeLastSectionW(wchar_t* szFileName, DWORD
     HANDLE FileMap;
     ULONG_PTR FileMapVA;
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_ALL, &FileHandle, &FileSize, &FileMap, &FileMapVA, NumberOfExpandBytes))
@@ -1125,17 +1125,17 @@ __declspec(dllexport) bool TITCALL DeleteLastSectionW(wchar_t* szFileName)
     HANDLE FileMap;
     ULONG_PTR FileMapVA;
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_ALL, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))
@@ -1322,17 +1322,17 @@ __declspec(dllexport) bool TITCALL WipeSectionW(wchar_t* szFileName, int WipeSec
     HANDLE FileMap;
     ULONG_PTR FileMapVA;
 
-    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof szBackupItem))
+    if(engineBackupForCriticalFunctions && CreateGarbageItem(&szBackupItem, sizeof(szBackupItem)))
     {
-        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof szBackupItem))
+        if(!FillGarbageItem(szBackupItem, szFileName, &szBackupFile, sizeof(szBackupItem)))
         {
-            RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+            RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
             lstrcpyW(szBackupFile, szFileName);
         }
     }
     else
     {
-        RtlZeroMemory(&szBackupItem, sizeof szBackupItem);
+        RtlZeroMemory(&szBackupItem, sizeof(szBackupItem));
         lstrcpyW(szBackupFile, szFileName);
     }
     if(MapFileExW(szBackupFile, UE_ACCESS_ALL, &FileHandle, &FileSize, &FileMap, &FileMapVA, NULL))

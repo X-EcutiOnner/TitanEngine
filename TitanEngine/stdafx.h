@@ -37,6 +37,20 @@
 #define _Out_writes_opt_(x)
 #endif
 
+// Utility helpers for legacy TitanEngine callback APIs that use void* handles
+// for callbacks while still allowing typed function pointer usage internally.
+template<typename T>
+static inline LPVOID CallbackToObjectPointer(T functionPointer)
+{
+    return reinterpret_cast<LPVOID>(reinterpret_cast<ULONG_PTR>(functionPointer));
+}
+
+template<typename T>
+static inline T ObjectPointerToCallback(LPVOID callbackData)
+{
+    return reinterpret_cast<T>(reinterpret_cast<ULONG_PTR>(callbackData));
+}
+
 #ifndef _In_reads_
 #define _In_reads_(x)
 #endif

@@ -29,7 +29,7 @@ __declspec(dllexport) bool TITCALL FindOEPGenericallyW(wchar_t* szFileName, LPVO
 
     if(GenericOEPFileInitW(szFileName, TraceInitCallBack, CallBack))
     {
-        InitDebugExW(szFileName, NULL, NULL, &GenericOEPTraceInit);
+        InitDebugExW(szFileName, NULL, NULL, CallbackToObjectPointer(&GenericOEPTraceInit));
         DebugLoop();
         for(i = 0; i < glbEntryTracerData.SectionNumber; i++)
         {

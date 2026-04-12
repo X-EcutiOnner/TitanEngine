@@ -180,7 +180,7 @@ __declspec(dllexport) bool TITCALL EngineCreateMissingDependenciesW(wchar_t* szF
                             }
                             ExporterBuildExportTableExW(BuildExportName, ".export");
                         }
-                        ImportPointer = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportPointer + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                        ImportPointer = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportPointer + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                     }
                 }
             }
@@ -238,7 +238,7 @@ __declspec(dllexport) bool TITCALL EngineCreateMissingDependenciesW(wchar_t* szF
                             }
                             ExporterBuildExportTableExW(BuildExportName, ".export");
                         }
-                        ImportPointer = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportPointer + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                        ImportPointer = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportPointer + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                     }
                 }
             }
@@ -276,8 +276,8 @@ __declspec(dllexport) bool TITCALL EngineDeleteCreatedDependencies()
         engineDependencyFilesCWP = engineDependencyFiles;
         while(*((char*)engineDependencyFilesCWP) != 0)
         {
-            RtlZeroMemory(&szTempName, sizeof szTempName);
-            RtlZeroMemory(&szTempFolder, sizeof szTempFolder);
+            RtlZeroMemory(&szTempName, sizeof(szTempName));
+            RtlZeroMemory(&szTempFolder, sizeof(szTempFolder));
             if(GetTempPathW(MAX_PATH, szTempFolder) < MAX_PATH)
             {
                 if(GetTempFileNameW(szTempFolder, L"DeleteTempGenFile", GetTickCount(), szTempName))

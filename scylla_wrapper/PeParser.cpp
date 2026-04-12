@@ -986,7 +986,8 @@ DWORD_PTR PeParser::getStandardImagebase()
     }
     else
     {
-        return pNTHeader64->OptionalHeader.ImageBase;
+        // NOTE: this is broken, but code is never executed
+        return (DWORD_PTR)pNTHeader64->OptionalHeader.ImageBase;
     }
 }
 

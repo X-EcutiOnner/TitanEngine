@@ -85,7 +85,7 @@ void DebuggerReset()
 {
     if(engineResetCustomHandler)
     {
-        RtlZeroMemory(&myDBGCustomHandler, sizeof CustomHandler);
+        RtlZeroMemory(&myDBGCustomHandler, sizeof(CustomHandler));
     }
     std::vector<BreakPointDetail>().swap(BreakPointBuffer);
     std::unordered_map<ULONG_PTR, MemoryBreakpointPageDetail>().swap(MemoryBreakpointPages);
@@ -113,11 +113,11 @@ void StepOutStepCallBack()
         else
         {
             typedef void(TITCALL * fCustomBreakPoint)();
-            ((fCustomBreakPoint)StepOutCallBack)();
+            ObjectPointerToCallback<fCustomBreakPoint>(StepOutCallBack)();
         }
     }
     else
-        StepOver(StepOutStepCallBack);
+        StepOver(CallbackToObjectPointer(&StepOutStepCallBack));
 }
 
 static DWORD BaseSetLastNTError(IN NTSTATUS Status)

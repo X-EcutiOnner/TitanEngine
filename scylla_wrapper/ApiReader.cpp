@@ -453,7 +453,7 @@ void ApiReader::findApiByModule(ModuleInfo* module, char* searchFunctionName, WO
             {
                 if(ordinal)
                 {
-                    *vaApi = (DWORD_PTR)GetProcAddress(hModule, (LPCSTR)ordinal);
+                    *vaApi = (DWORD_PTR)GetProcAddress(hModule, (LPCSTR)MAKEINTRESOURCEA(ordinal));
                 }
                 else
                 {

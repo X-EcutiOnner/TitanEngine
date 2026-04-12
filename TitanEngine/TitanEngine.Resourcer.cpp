@@ -181,13 +181,13 @@ __declspec(dllexport) bool TITCALL ResourcerFindResourceEx(ULONG_PTR FileMapVA, 
             PEResource = (PIMAGE_RESOURCE_DIRECTORY)(ConvertVAtoFileOffsetEx(FileMapVA, FileSize, (ULONG_PTR)GetPE32DataFromMappedFile(FileMapVA, NULL, UE_IMAGEBASE), (ULONG_PTR)GetPE32DataFromMappedFile(FileMapVA, NULL, UE_RESOURCETABLEADDRESS), true, true));
             if(PEResource != NULL)
             {
-                PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResource + sizeof IMAGE_RESOURCE_DIRECTORY);
+                PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResource + sizeof(IMAGE_RESOURCE_DIRECTORY));
                 i = PEResource->NumberOfIdEntries + PEResource->NumberOfNamedEntries;
                 PEResourcePtr = PEResource;
                 while(i > NULL)
                 {
                     PESubResourcePtr1 = (PIMAGE_RESOURCE_DIRECTORY)((ULONG_PTR)PEResourcePtr + (PEResourceDir->OffsetToData ^ IMAGE_RESOURCE_DATA_IS_DIRECTORY));
-                    PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr1 + sizeof IMAGE_RESOURCE_DIRECTORY);
+                    PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr1 + sizeof(IMAGE_RESOURCE_DIRECTORY));
                     j = PESubResourcePtr1->NumberOfIdEntries + PESubResourcePtr1->NumberOfNamedEntries;
                     uniResourceType = (wchar_t*)((ULONG_PTR)PEResourcePtr + PEResourceDir->NameOffset);
                     if(((bool)PEResourceDir->NameIsString == true && EngineCompareResourceString(uniResourceType, szResourceType) == true) || ((bool)PEResourceDir->NameIsString == false && PEResourceDir->Id == ResourceType))
@@ -195,7 +195,7 @@ __declspec(dllexport) bool TITCALL ResourcerFindResourceEx(ULONG_PTR FileMapVA, 
                         while(j > NULL)
                         {
                             PESubResourcePtr2 = (PIMAGE_RESOURCE_DIRECTORY)((ULONG_PTR)PEResourcePtr + (PEResourceDir1->OffsetToData ^ IMAGE_RESOURCE_DATA_IS_DIRECTORY));
-                            PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr2 + sizeof IMAGE_RESOURCE_DIRECTORY);
+                            PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr2 + sizeof(IMAGE_RESOURCE_DIRECTORY));
                             n = PESubResourcePtr2->NumberOfIdEntries + PESubResourcePtr2->NumberOfNamedEntries;
                             uniResourceName = (wchar_t*)((ULONG_PTR)PEResourcePtr + PEResourceDir1->NameOffset);
                             if(((bool)PEResourceDir1->NameIsString == true && EngineCompareResourceString(uniResourceName, szResourceName) == true) || ((bool)PEResourceDir1->NameIsString == false && PEResourceDir1->Id == ResourceName))
@@ -209,23 +209,23 @@ __declspec(dllexport) bool TITCALL ResourcerFindResourceEx(ULONG_PTR FileMapVA, 
                                         *pResourceSize = PEResourceItem->Size;
                                         return true;
                                     }
-                                    PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir2 + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY);
+                                    PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir2 + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
                                     n--;
                                 }
                             }
                             else
                             {
-                                PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir2 + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY * n);
+                                PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir2 + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) * n);
                             }
-                            PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir1 + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY);
+                            PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir1 + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
                             j--;
                         }
                     }
                     else
                     {
-                        PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir1 + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY * j);
+                        PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir1 + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY) * j);
                     }
-                    PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY);
+                    PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
                     i--;
                 }
             }
@@ -295,18 +295,18 @@ __declspec(dllexport) void TITCALL ResourcerEnumerateResourceEx(ULONG_PTR FileMa
                 PEResource = (PIMAGE_RESOURCE_DIRECTORY)(ConvertVAtoFileOffsetEx(FileMapVA, FileSize, (ULONG_PTR)GetPE32DataFromMappedFile(FileMapVA, NULL, UE_IMAGEBASE), (ULONG_PTR)GetPE32DataFromMappedFile(FileMapVA, NULL, UE_RESOURCETABLEADDRESS), true, true));
                 if(PEResource != NULL)
                 {
-                    PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResource + sizeof IMAGE_RESOURCE_DIRECTORY);
+                    PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResource + sizeof(IMAGE_RESOURCE_DIRECTORY));
                     i = PEResource->NumberOfIdEntries + PEResource->NumberOfNamedEntries;
                     PEResourcePtr = PEResource;
                     while(i > NULL)
                     {
                         PESubResourcePtr1 = (PIMAGE_RESOURCE_DIRECTORY)((ULONG_PTR)PEResourcePtr + (PEResourceDir->OffsetToData ^ IMAGE_RESOURCE_DATA_IS_DIRECTORY));
-                        PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr1 + sizeof IMAGE_RESOURCE_DIRECTORY);
+                        PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr1 + sizeof(IMAGE_RESOURCE_DIRECTORY));
                         j = PESubResourcePtr1->NumberOfIdEntries + PESubResourcePtr1->NumberOfNamedEntries;
                         while(j > NULL)
                         {
                             PESubResourcePtr2 = (PIMAGE_RESOURCE_DIRECTORY)((ULONG_PTR)PEResourcePtr + (PEResourceDir1->OffsetToData ^ IMAGE_RESOURCE_DATA_IS_DIRECTORY));
-                            PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr2 + sizeof IMAGE_RESOURCE_DIRECTORY);
+                            PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PESubResourcePtr2 + sizeof(IMAGE_RESOURCE_DIRECTORY));
                             n = PESubResourcePtr2->NumberOfIdEntries + PESubResourcePtr2->NumberOfNamedEntries;
                             while(n > NULL)
                             {
@@ -337,13 +337,13 @@ __declspec(dllexport) void TITCALL ResourcerEnumerateResourceEx(ULONG_PTR FileMa
                                 {
                                     return;
                                 }
-                                PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir2 + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY);
+                                PEResourceDir2 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir2 + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
                                 n--;
                             }
-                            PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir1 + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY);
+                            PEResourceDir1 = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir1 + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
                             j--;
                         }
-                        PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir + sizeof IMAGE_RESOURCE_DIRECTORY_ENTRY);
+                        PEResourceDir = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((ULONG_PTR)PEResourceDir + sizeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
                         i--;
                     }
                 }

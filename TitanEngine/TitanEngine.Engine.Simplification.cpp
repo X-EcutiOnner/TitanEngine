@@ -33,7 +33,7 @@ __declspec(dllexport) void TITCALL EngineUnpackerInitializeW(wchar_t* szFileName
     {
         RtlZeroMemory(&szEngineUnpackerSnapShot1[0], MAX_PATH * 2);
         RtlZeroMemory(&szEngineUnpackerSnapShot2[0], MAX_PATH * 2);
-        RtlZeroMemory(&EngineUnpackerFileStatus, sizeof FILE_STATUS_INFO);
+        RtlZeroMemory(&EngineUnpackerFileStatus, sizeof(FILE_STATUS_INFO));
         if(IsPE32FileValidExW(szFileName, UE_DEPTH_DEEP, &EngineUnpackerFileStatus))
         {
             if(!EngineUnpackerFileStatus.FileIsDLL)
@@ -119,7 +119,7 @@ __declspec(dllexport) bool TITCALL EngineUnpackerSetBreakCondition(void* SearchS
 
         if(BreakType == UE_UNPACKER_CONDITION_LOADLIBRARY)
         {
-            if(SetBPX(fPatternLocation, UE_BREAKPOINT, &EngineSimplifyLoadLibraryCallBack))
+            if(SetBPX(fPatternLocation, UE_BREAKPOINT, CallbackToObjectPointer(&EngineSimplifyLoadLibraryCallBack)))
             {
                 EngineUnpackerBreakInfo.push_back(fUnpackerInformation);
                 return true;
@@ -127,7 +127,7 @@ __declspec(dllexport) bool TITCALL EngineUnpackerSetBreakCondition(void* SearchS
         }
         else if(BreakType == UE_UNPACKER_CONDITION_GETPROCADDRESS)
         {
-            if(SetBPX(fPatternLocation, UE_BREAKPOINT, &EngineSimplifyGetProcAddressCallBack))
+            if(SetBPX(fPatternLocation, UE_BREAKPOINT, CallbackToObjectPointer(&EngineSimplifyGetProcAddressCallBack)))
             {
                 EngineUnpackerBreakInfo.push_back(fUnpackerInformation);
                 return true;
@@ -135,7 +135,7 @@ __declspec(dllexport) bool TITCALL EngineUnpackerSetBreakCondition(void* SearchS
         }
         else if(BreakType == UE_UNPACKER_CONDITION_ENTRYPOINTBREAK)
         {
-            if(SetBPX(fPatternLocation, UE_BREAKPOINT, &EngineSimplifyGetProcAddressCallBack))
+            if(SetBPX(fPatternLocation, UE_BREAKPOINT, CallbackToObjectPointer(&EngineSimplifyGetProcAddressCallBack)))
             {
                 EngineUnpackerBreakInfo.push_back(fUnpackerInformation);
                 return true;
@@ -143,7 +143,7 @@ __declspec(dllexport) bool TITCALL EngineUnpackerSetBreakCondition(void* SearchS
         }
         else if(BreakType == UE_UNPACKER_CONDITION_RELOCSNAPSHOT1)
         {
-            if(SetBPX(fPatternLocation, UE_BREAKPOINT, &EngineSimplifyMakeSnapshotCallBack))
+            if(SetBPX(fPatternLocation, UE_BREAKPOINT, CallbackToObjectPointer(&EngineSimplifyMakeSnapshotCallBack)))
             {
                 fUnpackerInformation.SnapShotNumber = 1;
                 EngineUnpackerBreakInfo.push_back(fUnpackerInformation);
@@ -152,7 +152,7 @@ __declspec(dllexport) bool TITCALL EngineUnpackerSetBreakCondition(void* SearchS
         }
         else if(BreakType == UE_UNPACKER_CONDITION_RELOCSNAPSHOT2)
         {
-            if(SetBPX(fPatternLocation, UE_BREAKPOINT, &EngineSimplifyMakeSnapshotCallBack))
+            if(SetBPX(fPatternLocation, UE_BREAKPOINT, CallbackToObjectPointer(&EngineSimplifyMakeSnapshotCallBack)))
             {
                 fUnpackerInformation.SnapShotNumber = 2;
                 EngineUnpackerBreakInfo.push_back(fUnpackerInformation);
@@ -161,7 +161,7 @@ __declspec(dllexport) bool TITCALL EngineUnpackerSetBreakCondition(void* SearchS
         }
         else
         {
-            if(SetBPX(fPatternLocation, fBreakPointType, (void*)BreakType))
+            if(SetBPX(fPatternLocation, fBreakPointType, (void*)(ULONG_PTR)BreakType))
             {
                 EngineUnpackerBreakInfo.push_back(fUnpackerInformation);
                 return true;

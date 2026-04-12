@@ -184,7 +184,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
                 {
                     startAddress -= ULONG_PTR(DBGEvent.u.CreateProcessInfo.lpBaseOfImage);
                     startAddress += DebugModuleImageBase;
-                    DBGEvent.u.CreateProcessInfo.lpStartAddress = LPTHREAD_START_ROUTINE(startAddress);
+                    DBGEvent.u.CreateProcessInfo.lpStartAddress = reinterpret_cast<LPTHREAD_START_ROUTINE>(reinterpret_cast<LPVOID>(startAddress));
                 }
                 DBGEvent.u.CreateProcessInfo.lpBaseOfImage = LPVOID(DebugModuleImageBase);
             }
@@ -192,7 +192,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
             bool attachBreakpoint = false;
             if(DBGFileHandle == NULL) //we didn't set the handle yet (initial process)
             {
-                DBGEntryPoint = DBGEvent.u.CreateProcessInfo.lpStartAddress;
+                DBGEntryPoint = CallbackToObjectPointer(DBGEvent.u.CreateProcessInfo.lpStartAddress);
                 DBGFileHandle = DBGEvent.u.CreateProcessInfo.hFile;
                 DebugDebuggingMainModuleBase = (ULONG_PTR) DBGEvent.u.CreateProcessInfo.lpBaseOfImage;
                 if(DebugAttachedToProcess)  //we attached, set information
@@ -202,7 +202,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
                     dbgProcessInformation.dwThreadId = NULL;
                     if(engineAttachedProcessDebugInfo != NULL)
                     {
-                        RtlMoveMemory(engineAttachedProcessDebugInfo, &dbgProcessInformation, sizeof PROCESS_INFORMATION);
+                        RtlMoveMemory(engineAttachedProcessDebugInfo, &dbgProcessInformation, sizeof(PROCESS_INFORMATION));
                     }
                     attachBreakpoint = true;
                 }
@@ -394,7 +394,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
                     VirtualFree((void*)szTranslatedNativeName, NULL, MEM_RELEASE);
                 }
                 RtlZeroMemory(szAnsiLibraryName, sizeof(szAnsiLibraryName));
-                WideCharToMultiByte(CP_ACP, NULL, NewLibraryData.szLibraryName, -1, szAnsiLibraryName, sizeof szAnsiLibraryName, NULL, NULL);
+                WideCharToMultiByte(CP_ACP, NULL, NewLibraryData.szLibraryName, -1, szAnsiLibraryName, sizeof(szAnsiLibraryName), NULL, NULL);
 
                 //library breakpoint
                 for(int i = (int)LibrarianData.size() - 1; i >= 0; i--)
@@ -444,7 +444,7 @@ __declspec(dllexport) void TITCALL DebugLoop()
             if(hLoadedLibData)
             {
                 RtlZeroMemory(szAnsiLibraryName, sizeof(szAnsiLibraryName));
-                WideCharToMultiByte(CP_ACP, NULL, hLoadedLibData->szLibraryName, -1, szAnsiLibraryName, sizeof szAnsiLibraryName, NULL, NULL);
+                WideCharToMultiByte(CP_ACP, NULL, hLoadedLibData->szLibraryName, -1, szAnsiLibraryName, sizeof(szAnsiLibraryName), NULL, NULL);
 
                 for(int i = (int)LibrarianData.size() - 1; i >= 0; i--)
                 {
@@ -514,11 +514,11 @@ __declspec(dllexport) void TITCALL DebugLoop()
                 {
                     DBGCode = DBG_EXCEPTION_NOT_HANDLED; //let debuggee handle the exception
                 }
-                RtlMoveMemory(&TerminateDBGEvent, &DBGEvent, sizeof DEBUG_EVENT);
+                RtlMoveMemory(&TerminateDBGEvent, &DBGEvent, sizeof(DEBUG_EVENT));
             }
 
             //handle different exception codes
-            switch(DBGEvent.u.Exception.ExceptionRecord.ExceptionCode)
+            switch((LONG)DBGEvent.u.Exception.ExceptionRecord.ExceptionCode)
             {
             case STATUS_BREAKPOINT:
             {
@@ -1373,7 +1373,7 @@ continue_dbg_event:
 
     if(!SecondChance) //debugger didn't close with a second chance exception (normal exit)
     {
-        RtlMoveMemory(&TerminateDBGEvent, &DBGEvent, sizeof DEBUG_EVENT);
+        RtlMoveMemory(&TerminateDBGEvent, &DBGEvent, sizeof(DEBUG_EVENT));
     }
     ForceClose();
     engineFileIsBeingDebugged = false;

@@ -33,7 +33,7 @@ static ULONG_PTR EngineGlobalTracerHandler1(HANDLE hProcess, ULONG_PTR AddressTo
     bool SkipHashing = false;
     BYTE EmptyCall[5] = {0xE8, 0x00, 0x00, 0x00, 0x00};
 
-    if(VirtualQueryEx(hProcess, (LPVOID)AddressToTrace, &MemInfo, sizeof MEMORY_BASIC_INFORMATION) != NULL)
+    if(VirtualQueryEx(hProcess, (LPVOID)AddressToTrace, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION)) != NULL)
     {
         if(MemInfo.RegionSize > NULL)
         {
@@ -640,8 +640,8 @@ __declspec(dllexport) ULONG_PTR TITCALL HashTracerLevel1(HANDLE hProcess, ULONG_
             if(!FoundAPI)
             {
                 DOSHeader = (PIMAGE_DOS_HEADER)LoadedModules[i][1];
-                RtlZeroMemory(&RemoteModuleInfo, sizeof MODULEINFO);
-                GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof MODULEINFO);
+                RtlZeroMemory(&RemoteModuleInfo, sizeof(MODULEINFO));
+                GetModuleInformation(hProcess, (HMODULE)LoadedModules[i][1], &RemoteModuleInfo, sizeof(MODULEINFO));
                 if(ValidateHeader || EngineValidateHeader((ULONG_PTR)LoadedModules[i][1], hProcess, RemoteModuleInfo.lpBaseOfDll, DOSHeader, false))
                 {
                     PEHeader32 = (PIMAGE_NT_HEADERS32)((ULONG_PTR)DOSHeader + DOSHeader->e_lfanew);
@@ -719,7 +719,7 @@ __declspec(dllexport) long TITCALL TracerDetectRedirection(HANDLE hProcess, ULON
     LPVOID TraceMemory;
     bool HashCheck = false;
 
-    VirtualQueryEx(hProcess, (LPVOID)AddressToTrace, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+    VirtualQueryEx(hProcess, (LPVOID)AddressToTrace, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
     if(MemInfo.RegionSize > NULL)
     {
         MaximumReadSize = (DWORD)((ULONG_PTR)MemInfo.AllocationBase + MemInfo.RegionSize - AddressToTrace);
@@ -732,7 +732,7 @@ __declspec(dllexport) long TITCALL TracerDetectRedirection(HANDLE hProcess, ULON
         {
             HashCheck = true;
         }
-        if(sizeof HANDLE == 4)
+        if(sizeof(HANDLE) == 4)
         {
             TraceMemory = tracemem.Allocate(MaximumReadSize);
             if(!TraceMemory)
@@ -1126,7 +1126,7 @@ __declspec(dllexport) ULONG_PTR TITCALL TracerFixKnownRedirection(HANDLE hProces
     DWORD MaximumReadSize = 0x1000;
     cMem = (PMEMORY_CMP_HANDLER)TracerReadMemory;
 
-    VirtualQueryEx(hProcess, (LPVOID)AddressToTrace, &MemInfo, sizeof MEMORY_BASIC_INFORMATION);
+    VirtualQueryEx(hProcess, (LPVOID)AddressToTrace, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION));
     if(MemInfo.RegionSize > NULL)
     {
         MaximumReadSize = (DWORD)((ULONG_PTR)MemInfo.BaseAddress + MemInfo.RegionSize - AddressToTrace);
@@ -1475,7 +1475,7 @@ __declspec(dllexport) long TITCALL TracerFixRedirectionViaImpRecPlugin(HANDLE hP
                         fImpRecTrace = fImpRecTrace - (ULONG_PTR)hImpRecModule;
                         remCodeData = VirtualAllocEx(hProcess, NULL, remInjectSize, MEM_COMMIT, PAGE_READWRITE);
                         remStringData = VirtualAllocEx(hProcess, NULL, 0x1000, MEM_COMMIT, PAGE_READWRITE);
-                        RtlZeroMemory(&APIData, sizeof InjectImpRecCodeData);
+                        RtlZeroMemory(&APIData, sizeof(InjectImpRecCodeData));
                         APIData.fTrace = fImpRecTrace + (ULONG_PTR)ImporterGetRemoteDLLBase(hProcess, hImpRecModule);
                         APIData.AddressToTrace = (ULONG_PTR)TraceAddress;
                         APIData.fCreateFileA = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "CreateFileA"));
@@ -1483,8 +1483,8 @@ __declspec(dllexport) long TITCALL TracerFixRedirectionViaImpRecPlugin(HANDLE hP
                         APIData.fCloseHandle = (ULONG_PTR)ImporterGetRemoteAPIAddress(hProcess, (ULONG_PTR)GetProcAddress(GetModuleHandleA("kernel32.dll"), "CloseHandle"));
                         if(WriteProcessMemory(hProcess, remCodeData, (LPCVOID)&injectedImpRec, remInjectSize, &NumberOfBytesWritten))
                         {
-                            WriteProcessMemory(hProcess, remStringData, &APIData, sizeof InjectImpRecCodeData, &NumberOfBytesWritten);
-                            WriteProcessMemory(hProcess, (LPVOID)((ULONG_PTR)remStringData + sizeof InjectImpRecCodeData), (LPCVOID)szGarbageFile, lstrlenA((LPSTR)szGarbageFile), &NumberOfBytesWritten);
+                            WriteProcessMemory(hProcess, remStringData, &APIData, sizeof(InjectImpRecCodeData), &NumberOfBytesWritten);
+                            WriteProcessMemory(hProcess, (LPVOID)((ULONG_PTR)remStringData + sizeof(InjectImpRecCodeData)), (LPCVOID)szGarbageFile, lstrlenA((LPSTR)szGarbageFile), &NumberOfBytesWritten);
                             hThread = CreateRemoteThread(hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)remCodeData, remStringData, CREATE_SUSPENDED, &ThreadId);
 
                             NtSetInformationThread(hThread, ThreadHideFromDebugger, NULL, NULL);

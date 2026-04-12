@@ -99,6 +99,10 @@ add_library(scylla_wrapper STATIC)
 target_sources(scylla_wrapper PRIVATE ${scylla_wrapper_SOURCES})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${scylla_wrapper_SOURCES})
 
+target_compile_features(scylla_wrapper PUBLIC
+	cxx_std_11
+)
+
 target_include_directories(scylla_wrapper PUBLIC
 	"scylla_wrapper/include"
 )

@@ -17,7 +17,7 @@ static bool ProcessHookScanAddNewHook(PHOOK_ENTRY HookDetails, void* ptrOriginal
 {
     HOOK_ENTRY MyhookEntry = {};
 
-    RtlMoveMemory(&MyhookEntry, HookDetails, sizeof HOOK_ENTRY);
+    RtlMoveMemory(&MyhookEntry, HookDetails, sizeof(HOOK_ENTRY));
     hookEntry.push_back(MyhookEntry);
     return true;
 }
@@ -46,10 +46,10 @@ __declspec(dllexport) bool TITCALL HooksSafeTransitionEx(LPVOID HookAddressArray
                             {
 #if defined (_WIN64)
                                 ULONG_PTR HookAddress = (ULONG_PTR)myHookAddressArray->Array.qwArrayEntry[0];
-                                myHookAddressArray = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)myHookAddressArray + sizeof ULONG_PTR);
+                                myHookAddressArray = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)myHookAddressArray + sizeof(ULONG_PTR));
 #else
                                 ULONG_PTR HookAddress = (ULONG_PTR)myHookAddressArray->Array.dwArrayEntry[0];
-                                myHookAddressArray = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)myHookAddressArray + sizeof ULONG_PTR);
+                                myHookAddressArray = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)myHookAddressArray + sizeof(ULONG_PTR));
 #endif
                                 while(CurrentIP >= (ULONG_PTR)HookAddress && CurrentIP <= (ULONG_PTR)HookAddress + 5)
                                 {
@@ -84,7 +84,7 @@ __declspec(dllexport) bool TITCALL HooksSafeTransition(LPVOID HookAddress, bool 
     void* aHookAddress[1];
     aHookAddress[0] = HookAddress;
 
-    return(HooksSafeTransitionEx(&aHookAddress[0], sizeof aHookAddress, TransitionStart));
+    return(HooksSafeTransitionEx(&aHookAddress[0], sizeof(aHookAddress), TransitionStart));
 }
 
 __declspec(dllexport) bool TITCALL HooksIsAddressRedirected(LPVOID HookAddress)
@@ -176,22 +176,22 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
                             if(CompareMemory->Array.bArrayEntry[0] == 0xE9 && CurrentInstructionSize == 5)
                             {
                                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)RelocateMemory - CurrentInstructionSize);
-                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                             }
                             else if(CompareMemory->Array.bArrayEntry[0] >= 0x70 && CompareMemory->Array.bArrayEntry[0] <= 0x7F && CurrentInstructionSize == 2)
                             {
                                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)RelocateMemory - CurrentInstructionSize);
-                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                             }
                             else if(CompareMemory->Array.bArrayEntry[0] == 0x0F && CompareMemory->Array.bArrayEntry[1] >= 0x80 && CompareMemory->Array.bArrayEntry[1] <= 0x8F && CurrentInstructionSize == 6)
                             {
                                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)RelocateMemory - CurrentInstructionSize);
-                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                             }
                             else if(CompareMemory->Array.bArrayEntry[0] == 0xE8 && CurrentInstructionSize == 5)
                             {
                                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)RelocateMemory - CurrentInstructionSize);
-                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                                RtlMoveMemory(&RelocateMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                             }
                         }
                     }
@@ -236,7 +236,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
                 }
                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)WriteMemory - CurrentInstructionSize);
                 WriteMemory->Array.bArrayEntry[0] = 0xE9;
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 myHook.RelocationInfo[myHook.RelocationCount] = (DWORD)((ULONG_PTR)WriteMemory - (ULONG_PTR)buffPatchedEntry);
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + CurrentInstructionSize);
                 myHook.RelocationCount++;
@@ -245,7 +245,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
             {
                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)WriteMemory - 5);
                 WriteMemory->Array.bArrayEntry[0] = 0xE9;
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 myHook.RelocationInfo[myHook.RelocationCount] = (DWORD)((ULONG_PTR)WriteMemory - (ULONG_PTR)buffPatchedEntry);
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + 5);
                 myHook.RelocationCount++;
@@ -256,7 +256,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)WriteMemory - 6);
                 WriteMemory->Array.bArrayEntry[0] = 0x0F;
                 WriteMemory->Array.bArrayEntry[1] = CompareMemory->Array.bArrayEntry[0] + 0x10;
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 myHook.RelocationInfo[myHook.RelocationCount] = (DWORD)((ULONG_PTR)WriteMemory - (ULONG_PTR)buffPatchedEntry);
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + 6);
                 myHook.RelocationCount++;
@@ -269,7 +269,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
                 WriteMemory->Array.bArrayEntry[4] = 0xFF;
                 WriteMemory->Array.bArrayEntry[5] = 0x25;
                 RtlZeroMemory(&WriteMemory->Array.bArrayEntry[6], 4);
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[10], &x64CalculatedRealingJump, sizeof x64CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[10], &x64CalculatedRealingJump, sizeof(x64CalculatedRealingJump));
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + 18);
 #endif
             }
@@ -278,7 +278,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
 #if !defined(_WIN64)
                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)WriteMemory - CurrentInstructionSize);
                 RtlMoveMemory(&WriteMemory->Array.bArrayEntry[0], &CompareMemory->Array.bArrayEntry[0], 2);
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 myHook.RelocationInfo[myHook.RelocationCount] = (DWORD)((ULONG_PTR)WriteMemory - (ULONG_PTR)buffPatchedEntry);
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + CurrentInstructionSize);
                 myHook.RelocationCount++;
@@ -295,7 +295,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
                 WriteMemory->Array.bArrayEntry[8] = 0xFF;
                 WriteMemory->Array.bArrayEntry[9] = 0x25;
                 RtlZeroMemory(&WriteMemory->Array.bArrayEntry[10], 4);
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[14], &x64CalculatedRealingJump, sizeof x64CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[14], &x64CalculatedRealingJump, sizeof(x64CalculatedRealingJump));
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + 22);
 #endif
             }
@@ -303,7 +303,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
             {
                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)WriteMemory - CurrentInstructionSize);
                 WriteMemory->Array.bArrayEntry[0] = 0xE8;
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 myHook.RelocationInfo[myHook.RelocationCount] = (DWORD)((ULONG_PTR)WriteMemory - (ULONG_PTR)buffPatchedEntry);
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + CurrentInstructionSize);
                 myHook.RelocationCount++;
@@ -313,7 +313,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
             {
                 CalculatedRealingJump = (DWORD)((ULONG_PTR)RealignAddressTarget - (ULONG_PTR)WriteMemory - CurrentInstructionSize);
                 RtlMoveMemory(&WriteMemory->Array.bArrayEntry[0], &CompareMemory->Array.bArrayEntry[0], 2);
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + CurrentInstructionSize);
 #endif
             }
@@ -340,9 +340,9 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
 #else
         CalculatedRealingJump = NULL;
 #endif
-        RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof CalculatedRealingJump);
-        RtlMoveMemory(&WriteMemory->Array.bArrayEntry[6], &cHookAddress, sizeof CalculatedRealingJump);
-        WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + 6 + sizeof ULONG_PTR);
+        RtlMoveMemory(&WriteMemory->Array.bArrayEntry[2], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
+        RtlMoveMemory(&WriteMemory->Array.bArrayEntry[6], &cHookAddress, sizeof(CalculatedRealingJump));
+        WriteMemory = (PMEMORY_COMPARE_HANDLER)((ULONG_PTR)WriteMemory + 6 + sizeof(ULONG_PTR));
         myHook.HookIsEnabled = true;
         myHook.HookType = (BYTE)HookType;
         myHook.HookAddress = HookAddress;
@@ -360,7 +360,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
             if(VirtualProtect(HookAddress, TEE_MAXIMUM_HOOK_SIZE, PAGE_EXECUTE_READWRITE, &OldProtect))
             {
                 WriteMemory->Array.bArrayEntry[0] = 0xE9;
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 RtlMoveMemory(&myHook.HookBytes[0], HookAddress, TEE_MAXIMUM_HOOK_SIZE);
                 VirtualProtect(HookAddress, TEE_MAXIMUM_HOOK_SIZE, OldProtect, &OldProtect);
                 hookEntry.push_back(myHook);
@@ -372,7 +372,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
                 WriteMemory->Array.bArrayEntry[0] = 0xFF;
                 WriteMemory->Array.bArrayEntry[1] = 0x25;
                 RtlZeroMemory(&WriteMemory->Array.bArrayEntry[2], 4);
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[6], &RedirectTo, sizeof RedirectTo);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[6], &RedirectTo, sizeof(RedirectTo));
                 RtlMoveMemory(&myHook.HookBytes[0], HookAddress, TEE_MAXIMUM_HOOK_SIZE);
                 VirtualProtect(HookAddress, TEE_MAXIMUM_HOOK_SIZE, OldProtect, &OldProtect);
                 hookEntry.push_back(myHook);
@@ -387,7 +387,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
             if(VirtualProtect(HookAddress, TEE_MAXIMUM_HOOK_SIZE, PAGE_EXECUTE_READWRITE, &OldProtect))
             {
                 WriteMemory->Array.bArrayEntry[0] = 0xE8;
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof CalculatedRealingJump);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[1], &CalculatedRealingJump, sizeof(CalculatedRealingJump));
                 RtlMoveMemory(&myHook.HookBytes[0], HookAddress, TEE_MAXIMUM_HOOK_SIZE);
                 VirtualProtect(HookAddress, TEE_MAXIMUM_HOOK_SIZE, OldProtect, &OldProtect);
                 hookEntry.push_back(myHook);
@@ -399,7 +399,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewRedirection(LPVOID HookAddress,
                 WriteMemory->Array.bArrayEntry[0] = 0xFF;
                 WriteMemory->Array.bArrayEntry[1] = 0x15;
                 RtlZeroMemory(&WriteMemory->Array.bArrayEntry[2], 4);
-                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[6], &RedirectTo, sizeof RedirectTo);
+                RtlMoveMemory(&WriteMemory->Array.bArrayEntry[6], &RedirectTo, sizeof(RedirectTo));
                 RtlMoveMemory(&myHook.HookBytes[0], HookAddress, TEE_MAXIMUM_HOOK_SIZE);
                 VirtualProtect(HookAddress, TEE_MAXIMUM_HOOK_SIZE, OldProtect, &OldProtect);
                 hookEntry.push_back(myHook);
@@ -430,7 +430,7 @@ __declspec(dllexport) bool TITCALL HooksInsertNewIATRedirectionEx(ULONG_PTR File
         myHook.IATHook = true;
         myHook.HookIsEnabled = true;
         myHook.HookType = TEE_HOOK_IAT;
-        myHook.HookSize = sizeof ULONG_PTR;
+        myHook.HookSize = sizeof(ULONG_PTR);
         myHook.RedirectionAddress = RedirectTo;
         myHook.IATHookModuleBase = (void*)LoadedModuleBase;
         myHook.IATHookNameHash = EngineHashString(szHookFunction);
@@ -488,9 +488,9 @@ __declspec(dllexport) bool TITCALL HooksInsertNewIATRedirectionEx(ULONG_PTR File
                                     }
                                 }
                                 CurrentThunk = CurrentThunk + 4;
-                                ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof IMAGE_THUNK_DATA32);
+                                ThunkData32 = (PIMAGE_THUNK_DATA32)((ULONG_PTR)ThunkData32 + sizeof(IMAGE_THUNK_DATA32));
                             }
-                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                         }
                         return true;
                     }
@@ -537,9 +537,9 @@ __declspec(dllexport) bool TITCALL HooksInsertNewIATRedirectionEx(ULONG_PTR File
                                     }
                                 }
                                 CurrentThunk = CurrentThunk + 8;
-                                ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof IMAGE_THUNK_DATA64);
+                                ThunkData64 = (PIMAGE_THUNK_DATA64)((ULONG_PTR)ThunkData64 + sizeof(IMAGE_THUNK_DATA64));
                             }
-                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof IMAGE_IMPORT_DESCRIPTOR);
+                            ImportIID = (PIMAGE_IMPORT_DESCRIPTOR)((ULONG_PTR)ImportIID + sizeof(IMAGE_IMPORT_DESCRIPTOR));
                         }
                         return true;
                     }
@@ -634,7 +634,7 @@ __declspec(dllexport) bool TITCALL HooksRemoveRedirectionsForModule(HMODULE Modu
     DWORD OldProtect = PAGE_READONLY;
     MODULEINFO RemoteModuleInfo;
 
-    if(GetModuleInformation(GetCurrentProcess(), ModuleBase, &RemoteModuleInfo, sizeof MODULEINFO))
+    if(GetModuleInformation(GetCurrentProcess(), ModuleBase, &RemoteModuleInfo, sizeof(MODULEINFO)))
     {
         while(i > NULL)
         {
@@ -731,7 +731,7 @@ __declspec(dllexport) bool TITCALL HooksDisableRedirectionsForModule(HMODULE Mod
     DWORD OldProtect = PAGE_READONLY;
     MODULEINFO RemoteModuleInfo;
 
-    if(GetModuleInformation(GetCurrentProcess(), ModuleBase, &RemoteModuleInfo, sizeof MODULEINFO))
+    if(GetModuleInformation(GetCurrentProcess(), ModuleBase, &RemoteModuleInfo, sizeof(MODULEINFO)))
     {
         while(i > NULL)
         {
@@ -831,7 +831,7 @@ __declspec(dllexport) bool TITCALL HooksEnableRedirectionsForModule(HMODULE Modu
     DWORD OldProtect = PAGE_READONLY;
     MODULEINFO RemoteModuleInfo;
 
-    if(GetModuleInformation(GetCurrentProcess(), ModuleBase, &RemoteModuleInfo, sizeof MODULEINFO))
+    if(GetModuleInformation(GetCurrentProcess(), ModuleBase, &RemoteModuleInfo, sizeof(MODULEINFO)))
     {
         while(i > NULL)
         {
@@ -950,12 +950,12 @@ __declspec(dllexport) void TITCALL HooksScanModuleMemory(HMODULE ModuleBase, LPV
     }
     else
     {
-        RtlMoveMemory(&RemoteLibInfo, pRemoteLibInfo, sizeof LIBRARY_ITEM_DATA);
+        RtlMoveMemory(&RemoteLibInfo, pRemoteLibInfo, sizeof(LIBRARY_ITEM_DATA));
     }
     if(!FileError)
     {
         hSize = GetFileSize(RemoteLibInfo.hFile, NULL);
-        GetModuleInformation(hProcess, ModuleBase, &ModuleInfo, sizeof MODULEINFO);
+        GetModuleInformation(hProcess, ModuleBase, &ModuleInfo, sizeof(MODULEINFO));
         DOSHeader = (PIMAGE_DOS_HEADER)RemoteLibInfo.hFileMappingView;
         __try
         {
@@ -1125,5 +1125,5 @@ __declspec(dllexport) void TITCALL HooksScanEntireProcessMemory(LPVOID CallBack)
 
 __declspec(dllexport) void TITCALL HooksScanEntireProcessMemoryEx()
 {
-    HooksScanEntireProcessMemory(&ProcessHookScanAddNewHook);
+    HooksScanEntireProcessMemory(CallbackToObjectPointer(&ProcessHookScanAddNewHook));
 }
