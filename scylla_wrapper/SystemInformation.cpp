@@ -9,7 +9,7 @@ bool SystemInformation::getSystemInformation()
     osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
     SYSTEM_INFO si = {0};
     def_GetNativeSystemInfo _GetNativeSystemInfo = 0;
-    typedef LONG (WINAPI* tRtlGetVersion)(PRTL_OSVERSIONINFOW);
+    typedef LONG(WINAPI * tRtlGetVersion)(PRTL_OSVERSIONINFOW);
     tRtlGetVersion pRtlGetVersion = (tRtlGetVersion)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetVersion");
     if(!pRtlGetVersion)
         return false;

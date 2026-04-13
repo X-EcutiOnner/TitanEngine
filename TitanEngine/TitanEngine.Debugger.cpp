@@ -502,9 +502,9 @@ __declspec(dllexport) void* TITCALL InitNativeDebugW(wchar_t* szFileName, wchar_
     NumAttributes = 3;
     AttributesSize = sizeof(SIZE_T) + NumAttributes * sizeof(PS_ATTRIBUTE);
     AttributeList = reinterpret_cast<PPS_ATTRIBUTE_LIST>(
-                                           RtlAllocateHeap(RtlProcessHeap(),
-                                                   HEAP_ZERO_MEMORY, // Not optional
-                                                   AttributesSize));
+                        RtlAllocateHeap(RtlProcessHeap(),
+                                        HEAP_ZERO_MEMORY, // Not optional
+                                        AttributesSize));
     AttributeList->TotalLength = AttributesSize;
 
     // In: NT style absolute image path. This is the only required attribute

@@ -14,7 +14,7 @@ static bool isAtleastVista()
         return isAtleastVista;
     RTL_OSVERSIONINFOW versionInfo = {0};
     versionInfo.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
-    typedef NTSTATUS (WINAPI* tRtlGetVersion)(PRTL_OSVERSIONINFOW);
+    typedef NTSTATUS(WINAPI * tRtlGetVersion)(PRTL_OSVERSIONINFOW);
     tRtlGetVersion pRtlGetVersion = (tRtlGetVersion)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetVersion");
     if(!pRtlGetVersion || !NT_SUCCESS(pRtlGetVersion(&versionInfo)))
     {

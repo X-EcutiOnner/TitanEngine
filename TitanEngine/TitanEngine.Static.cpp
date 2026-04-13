@@ -90,7 +90,7 @@ __declspec(dllexport) bool TITCALL StaticFileUnloadW(wchar_t* szFileName, bool C
     if(FileHandle != NULL && FileMap != NULL)
     {
         // HACK: compatibility with x64dbg
-        if(FileHandle != (HANDLE)-1)
+        if(FileHandle != (HANDLE) - 1)
         {
             UnMapFileEx(FileHandle, LoadedSize, FileMap, FileMapVA);
         }
